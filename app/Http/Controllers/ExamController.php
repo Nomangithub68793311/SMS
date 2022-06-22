@@ -4,7 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Exam;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Tymon\JWTAuth\JWTManager as JWT;
+use JWTAuth;
+use JWTFactory;
 class ExamController extends Controller
 {
     /**
