@@ -17,23 +17,22 @@ return new class extends Migration
             $table->id();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('email')->unique();
             $table->string('gender');
+            $table->date('date_of_birth')->nullable();
             $table->integer('roll');
             $table->string('blood_group');
             $table->string('religion');
+            $table->string('email')->unique();
             $table->string('class');
             $table->string('section');
+            $table->string('car');
             $table->integer('admission_id');
             $table->integer('phone');
-            $table->string('bio');
-            $table->string('photo');
+            // $table->string('photo');
             $table->string('address');
+            $table->string('hashedPassword');
             $table->string('password');
-            $table->date("date_of_birth")->nullable(); 
-          
-
-
+            $table->string('bio'); 
             $table->timestamps();
         });
     }
