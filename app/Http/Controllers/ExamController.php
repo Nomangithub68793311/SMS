@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Models\Exam;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -41,7 +42,59 @@ class ExamController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $input = $request->only(
+            'exam_name', 'select_date', 'subject_type', 'select_class'
+            , 'select_section', 'select_time'
+        );
+    
+                              
+
+        $validator = Validator::make($input, [
+            'exam_name' => 'required',
+            'select_date' => 'required',
+            'subject_type' => 'required',
+            'select_class' => 'required',
+            'select_section' => 'required',
+            'select_time' => 'required'
+         
+        ]);
+
+        if($validator->fails()){
+            return response()->json(["error"=>'fails']);
+
+        }
+        $matchThese = ['select_date' => $request->select_date, 'select_time' => $request->select_time,
+                     'select_section' => $request->select_section, 'exam_name' => $request->exam_name,
+                     'select_class' => $request->select_class ];
+        $found=Exam::where($matchThese )->first();
+        if($found){
+            return response()->json(['success'=>false, 'message' => 'Exam Exists'],422);
+
+        }
+      
+
+        try {
+            // begin transaction
+            DB::beginTransaction();
+            
+            // write your dependent quires here
+            $Exam = Exam::create($input); // eloquent creation of data
+
+            
+            if (!$Exam) {
+                return response()->json(["error"=>"didnt work"],422);
+            }
+            
+            // Happy ending :)
+            DB::commit();   
+            return response()->json(["Exam"=>$Exam]);
+        }
+            catch (\Exception $e) {
+            // May day,  rollback!!! rollback!!!
+            DB::rollback();   
+             
+        return response()->json(["error"=>"didnt work"],422);
+            }
     }
 
     /**

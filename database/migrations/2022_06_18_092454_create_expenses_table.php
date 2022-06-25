@@ -16,11 +16,11 @@ return new class extends Migration
         Schema::create('expenses', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('expenseType');
+            $table->string('expense_type');
             $table->integer('amount');
             $table->integer('phone');
-            $table->integer('idNo');
-            $table->integer('email');
+            $table->integer('id_no');
+            $table->string('email')->nullable();
             $table->string('status');
             $table->date("date")->nullable(); 
             $table->timestamps();

@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Models\ClassName;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -41,7 +42,63 @@ class ClassNameController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $input = $request->only(
+            'teacher_name', 'gender', 'class', 'id_no'
+            ,'phone', 'subject', 'section' ,'email', 'date', 
+            'time',
+            
+          );
+    
+                              
+
+        $validator = Validator::make($input, [
+            'teacher_name' => 'required',
+            'gender' => 'required',
+            'class' => 'required',
+            'id_no' => 'required',
+            'phone' => 'required',
+            'subject' => 'required',
+            'section' => 'required',
+            'email' => 'required',
+            'date' => 'required',
+            'time' => 'required'
+           
+        ]);
+
+        if($validator->fails()){
+            return response()->json(["error"=>'fails']);
+
+        }
+        $found=ClassName::where('id_no','=',$request->id_no)->first();
+        if($found){
+            return response()->json(['success'=>false, 'message' => 'Book Exists']);
+
+        }
+        
+
+        try {
+            // begin transaction
+            DB::beginTransaction();
+            
+            // write your dependent quires here
+            $class = ClassName::create($input); // eloquent creation of data
+
+            
+            if (!$class) {
+                return response()->json(["error"=>"didnt work"],422);
+            }
+            
+            // Happy ending :)
+            DB::commit();   
+            return response()->json(["class"=>$class]);
+        }
+            catch (\Exception $e) {
+            // May day,  rollback!!! rollback!!!
+            DB::rollback();   
+             
+        return response()->json(["error"=>"didnt work"],422);
+
+            }
     }
 
     /**

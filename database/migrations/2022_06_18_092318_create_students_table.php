@@ -25,7 +25,6 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('class');
             $table->string('section');
-            $table->string('car');
             $table->integer('admission_id');
             $table->integer('phone');
             // $table->string('photo');

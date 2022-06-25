@@ -8,4 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class Library extends Model
 {
     use HasFactory;
+    protected $dateFormat = 'Y-m-d';
+   
+    protected $fillable=[
+        'book_name', 'subject', 'Writter_name', 'class'
+        ,'book_id', 'publish_date', 'upload_date',
+        
+
+
+
+    ];
 }

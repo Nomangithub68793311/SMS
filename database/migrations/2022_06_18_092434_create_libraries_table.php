@@ -15,13 +15,13 @@ return new class extends Migration
     {
         Schema::create('libraries', function (Blueprint $table) {
             $table->id();
-            $table->string('bookName');
+            $table->string('book_name');
             $table->string('subject');
-            $table->string('WritterName');
+            $table->string('Writter_name');
             $table->string('class');
-            $table->integer('bookId');
-            $table->date("publishDate")->nullable(); 
-            $table->date("uploadDate")->nullable(); 
+            $table->integer('book_id');
+            $table->date("publish_date")->nullable(); 
+            $table->date("upload_date")->nullable(); 
             $table->timestamps();
         });
     }

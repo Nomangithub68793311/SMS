@@ -16,9 +16,9 @@ return new class extends Migration
         Schema::create('notices', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('postedBy');
+            $table->string('posted_by');
             $table->string('details');
-            $table->date("postDate")->nullable(); 
+            $table->date("post_date")->nullable(); 
             $table->timestamps();
         });
     }

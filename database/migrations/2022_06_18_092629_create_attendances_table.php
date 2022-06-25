@@ -15,10 +15,12 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->string('selectSession');
-            $table->date('selectMonth')->nullable();
-            $table->integer('selectClass');
-            $table->integer('selectSection');
+            $table->integer('session_from');
+            $table->integer('session_to');
+            $table->date('select_month_from')->nullable();
+            $table->date('select_month_to')->nullable();
+            $table->string('select_class');
+            $table->integer('select_section');
             $table->timestamps();
         });
     }

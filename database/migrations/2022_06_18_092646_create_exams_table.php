@@ -15,12 +15,12 @@ return new class extends Migration
     {
         Schema::create('exams', function (Blueprint $table) {
             $table->id();
-            $table->string('selectSection');
-            $table->date('selectMonth')->nullable();
-            $table->integer('subjectType');
-            $table->integer('selectClass');
-            $table->date("selectDate")->nullable(); 
-            $table->date("selectTime")->nullable(); 
+            $table->string('exam_name');
+            $table->date('select_date')->nullable();
+            $table->string('subject_type');
+            $table->string('select_class');
+            $table->string("select_section"); 
+            $table->time('select_time')->default('00:00:00');
             $table->timestamps();
         });
     }

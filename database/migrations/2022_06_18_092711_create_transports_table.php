@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('transports', function (Blueprint $table) {
             $table->id();
-            $table->string('routeName');
-            $table->integer('vehicleNumber');
-            $table->integer('licenseNumber');
-            $table->integer('phoneNumber');
-            $table->string('driverName');
+            $table->string('route_name');
+            $table->integer('vehicle_number');
+            $table->string('license_number');
+            $table->integer('phone_number');
+            $table->string('driver_name');
             $table->timestamps();
         });
     }

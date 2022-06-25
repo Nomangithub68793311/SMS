@@ -15,19 +15,21 @@ return new class extends Migration
     {
         Schema::create('teachers', function (Blueprint $table) {
             $table->id();
-            $table->string('firstname');
-            $table->string('lastname');
-            $table->string('email');
+            $table->string('first_name');
+            $table->string('last_name');
             $table->string('gender');
-            $table->integer('idNo');
-            $table->string('bloodGroup');
+            $table->date('date_of_birth')->nullable(); 
+            $table->integer('id_no');
+            $table->string('blood_group');
             $table->string('religion');
+            $table->string('email')->unique();
             $table->string('class');
             $table->string('section');
             $table->integer('phone');
-            $table->string('photo');
             $table->string('address');
-            $table->date("birth_date")->nullable(); 
+            $table->string('bio');
+            $table->string('hashedPassword');
+            $table->string('password');
             $table->timestamps();
         });
     }

@@ -1,11 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\JWTManager as JWT;
@@ -70,20 +73,43 @@ class StudentController extends Controller
             return response()->json(["error"=>'fails']);
 
         }
-        $found=Student::where('email','=',$request->email)->first();
+        $matchThese = ['email' => $request->email,
+        'roll' => $request->roll,
+        'phone' => $request->phone,
+        'admission_id' => $request->admission_id
+
+       
+       ];
+       $found=Student::where($matchThese)->first();
         if($found){
-            return response()->json(['success'=>false, 'message' => 'Email Exists']);
+            return response()->json(['success'=>false, 'message' => 'Email ,Roll,Phone,Admission_id Exists']);
 
         }
         $ranpass=Str::random(12);
         $input['password'] =$ranpass;
         $input['hashedPassword'] = Hash::make($ranpass); 
-        $student = Student::create($input); // eloquent creation of data
+        try {
+            DB::beginTransaction();
+            
+            $student = Student::create($input); // eloquent creation of data
+
+            
+            if (!$student) {
+                return response()->json(["error"=>"didnt work"],422);
+            }
+            
+            DB::commit();   
+            return response()->json(["email"=>$student->email,"pass"=>$student->password]);
+        }
+            catch (\Exception $e) {
+            DB::rollback();   
+             
+        return response()->json(["error"=>"didnt work"],422);
+    }
         // $payload = JWTFactory::sub($student->id)
         // ->myCustomObject($account)
         // ->make();
         // $token = JWTAuth::encode($payload);
-        return response()->json(["email"=>$student->email,"pass"=>$student->password]);
     }
 
     /**

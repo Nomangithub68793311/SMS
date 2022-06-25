@@ -1,8 +1,13 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use App\Models\Admin;
+use App\Models\Student;
+use App\Models\Teacher;
+use App\Models\Parentmodel;
+use App\Models\Expense;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -19,9 +24,44 @@ class AdminController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function all()
     {
-        //
+        try {
+            // begin transaction
+            DB::beginTransaction();
+            
+            // write your dependent quires here
+            $total_students = Student::count(); // eloquent creation of data
+            $total_male=Student::where('gender','male')->get()->count();
+            $total_female=Student::where('gender','female')->get()->count();
+            $total_teachers = Teacher::count();
+            $total_parents = Parentmodel::count();
+            $total_expenses =Expense::get()->sum("amount");
+            
+            if (!$total_students && !$total_male &&  !$total_female && !$total_teachers && !$total_parents && !$total_expenses ) {
+                return response()->json(["error"=>"didnt work"],422);
+            }
+            
+            // Happy ending :)
+            DB::commit();   
+            return response()->json([
+                "total_students"=>$total_students,
+                "total_male"=>$total_male,
+                "total_female"=>$total_female,
+                "total_teachers"=>$total_teachers,
+                "total_parents"=>$total_parents,
+                "total_expenses"=>$total_expenses,
+
+            
+            
+            ]);
+        }
+            catch (\Exception $e) {
+            // May day,  rollback!!! rollback!!!
+            DB::rollback();   
+             
+        return response()->json(["error"=>"didnt work"],422);
+            }
     }
 
     /**

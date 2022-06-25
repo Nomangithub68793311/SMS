@@ -6,4 +6,5 @@ use App\Http\Controllers\AdminController;
 
 Route::post('/signup',[AdminController::class,'store']);
 Route::post('/login',[AdminController::class,'login']);
-Route::get('/data/{id}',[AccountController::class,'index'])->middleware('jwt.verify');
+Route::get('/data/all',[AdminController::class,'all']);
+Route::get('/data/{id}',[AdminController::class,'index'])->middleware('jwt.verify');
