@@ -1,15 +1,16 @@
 <?php
 
 namespace App\Models;
-
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Notice extends Model
 {
     use HasFactory;
-    protected $dateFormat = 'Y-m-d';
-   
+    protected $dateFormat = 'Y-m-d H:i:s';
+    // protected $timeFormat = 'H:i:s';
+
     protected $fillable=[
         'title', 'posted_by', 'details', 'post_date'
        
@@ -18,4 +19,15 @@ class Notice extends Model
 
 
     ];
+
+     	 	
+//     public function getCreatedAtAttribute($date)
+// {
+//     $this->attributes['created_at'] = Carbon::createFromFormat('d-m-Y H:i:s',$date);
+// }
+
+// public function getUpdatedAtAttribute($date)
+// {
+//     $this->attributes['updated_at'] = Carbon::createFromFormat('d-m-Y H:i:s',$date);
+// }
 }

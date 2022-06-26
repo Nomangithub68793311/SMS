@@ -9,7 +9,7 @@ class Transport extends Model
 {
     use HasFactory;
     protected $timeFormat = 'H:i:s';
-    protected $dateFormat = 'Y-m-d';
+    protected $dateFormat = 'Y-m-d H:i:s';
     protected $fillable=[
         'route_name', 'vehicle_number', 'license_number', 'select_class'
         , 'phone_number', 'driver_name'

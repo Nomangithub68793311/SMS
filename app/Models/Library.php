@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Library extends Model
 {
     use HasFactory;
-    protected $dateFormat = 'Y-m-d';
+    protected $dateFormat = 'Y-m-d H:i:s';
    
     protected $fillable=[
         'book_name', 'subject', 'Writter_name', 'class'

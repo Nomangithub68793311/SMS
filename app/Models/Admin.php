@@ -10,6 +10,8 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 class Admin extends Authenticatable implements JWTSubject
 {
     use HasFactory;
+    protected $dateFormat = 'Y-m-d H:i:s';
+
     protected $fillable = [
         'name',
         'email',

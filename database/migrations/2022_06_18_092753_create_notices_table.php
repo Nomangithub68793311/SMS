@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('details');
             $table->date("post_date")->nullable(); 
             $table->timestamps();
+
         });
     }
 

@@ -9,7 +9,7 @@ class Subject extends Model
 {
     use HasFactory;
     protected $timeFormat = 'H:i:s';
-    protected $dateFormat = 'Y-m-d';
+    protected $dateFormat = 'Y-m-d H:i:s';
 
    
     protected $fillable=[

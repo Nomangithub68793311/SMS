@@ -9,7 +9,7 @@ class Exam extends Model
 {
     use HasFactory;
     protected $timeFormat = 'H:i:s';
-    protected $dateFormat = 'Y-m-d';
+    protected $dateFormat = 'Y-m-d H:i:s';
     protected $fillable=[
         'exam_name', 'select_date', 'subject_type', 'select_class'
         , 'select_section', 'select_time'

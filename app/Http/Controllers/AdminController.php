@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Admin;
 use App\Models\Student;
+use App\Models\Notice;
 use App\Models\Teacher;
 use App\Models\Parentmodel;
 use App\Models\Expense;
@@ -37,8 +38,9 @@ class AdminController extends Controller
             $total_teachers = Teacher::count();
             $total_parents = Parentmodel::count();
             $total_expenses =Expense::get()->sum("amount");
+            $notice =Notice::all();
             
-            if (!$total_students && !$total_male &&  !$total_female && !$total_teachers && !$total_parents && !$total_expenses ) {
+            if (!$total_students && !$notice && !$total_male &&  !$total_female && !$total_teachers && !$total_parents && !$total_expenses ) {
                 return response()->json(["error"=>"didnt work"],422);
             }
             
@@ -51,6 +53,7 @@ class AdminController extends Controller
                 "total_teachers"=>$total_teachers,
                 "total_parents"=>$total_parents,
                 "total_expenses"=>$total_expenses,
+                "notice"=>$notice
 
             
             
