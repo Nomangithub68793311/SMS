@@ -14,8 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('admin_users', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->uuid('id')->primary();            $table->timestamps();
         });
     }
 

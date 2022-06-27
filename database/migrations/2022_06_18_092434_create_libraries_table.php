@@ -14,8 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('libraries', function (Blueprint $table) {
-            $table->id();
-            $table->string('book_name');
+            $table->uuid('id')->primary();            $table->string('book_name');
             $table->string('subject');
             $table->string('Writter_name');
             $table->string('class');

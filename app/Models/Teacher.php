@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Teacher extends Model
 {
+    use \App\Traits\TraitUuid;
     use HasFactory;
     protected $dateFormat = 'Y-m-d H:i:s';
     protected $hidden = [

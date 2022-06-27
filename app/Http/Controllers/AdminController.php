@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Admin;
 use App\Models\Student;
+use Carbon\Carbon;
 use App\Models\Notice;
 use App\Models\Teacher;
 use App\Models\Parentmodel;
@@ -38,13 +39,22 @@ class AdminController extends Controller
             $total_teachers = Teacher::count();
             $total_parents = Parentmodel::count();
             $total_expenses =Expense::get()->sum("amount");
-            $notice =Notice::all();
+        //    DB::table('notice')->orderBy('id')->chunk(3, function ($contacts) {
+        //         foreach ($contacts as $contact) {
+        //             echo $contacts;
+        //         }
+        //     });
+            $chunks  = Notice::whereDate('created_at',Carbon::today())->get();
+            // $chunks = $notices->map(function($notice) {
+            //     return $notice = $notice->values();
+            //  });
+            //  return $chunks;
             
-            if (!$total_students && !$notice && !$total_male &&  !$total_female && !$total_teachers && !$total_parents && !$total_expenses ) {
+            if (!$total_students && !$chunks && !$total_male &&  !$total_female && !$total_teachers && !$total_parents && !$total_expenses ) {
                 return response()->json(["error"=>"didnt work"],422);
             }
             
-            // Happy ending :)
+    //        Happy ending :)
             DB::commit();   
             return response()->json([
                 "total_students"=>$total_students,
@@ -53,9 +63,8 @@ class AdminController extends Controller
                 "total_teachers"=>$total_teachers,
                 "total_parents"=>$total_parents,
                 "total_expenses"=>$total_expenses,
-                "notice"=>$notice
-
-            
+                "notice"=> $chunks
+                 
             
             ]);
         }

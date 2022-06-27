@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('exams', function (Blueprint $table) {
-            $table->id();
-            $table->string('exam_name');
+            $table->uuid('id')->primary();           
+             $table->string('exam_name');
             $table->date('select_date')->nullable();
             $table->string('subject_type');
             $table->string('select_class');

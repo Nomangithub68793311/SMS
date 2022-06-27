@@ -14,8 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('class_routines', function (Blueprint $table) {
-            $table->id();
-            $table->string('subjectName');
+            $table->uuid('id')->primary();            $table->string('subjectName');
             $table->string('subjectType');
             $table->string('selectClass');
             $table->integer('selectCode');

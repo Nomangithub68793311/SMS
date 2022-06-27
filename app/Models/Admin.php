@@ -9,6 +9,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class Admin extends Authenticatable implements JWTSubject
 {
+    use \App\Traits\TraitUuid;
     use HasFactory;
     protected $dateFormat = 'Y-m-d H:i:s';
 

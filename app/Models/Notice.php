@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Notice extends Model
 {
+    use \App\Traits\TraitUuid;
     use HasFactory;
     protected $dateFormat = 'Y-m-d H:i:s';
-    // protected $timeFormat = 'H:i:s';
 
     protected $fillable=[
         'title', 'posted_by', 'details', 'post_date'

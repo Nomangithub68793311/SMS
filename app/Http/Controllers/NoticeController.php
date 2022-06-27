@@ -20,8 +20,16 @@ class NoticeController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
+
     {
-        //
+        $news = Notice::orderBy('created_at', 'desc')->get();
+        $newsorder = Notice::paginate(3);
+
+        // $news = Notice::with(['title' => function($q){
+        //     $q->take(3);
+        // }])->get();
+        return response()->json(["news"=> $newsorder ]);
+
     }
 
     /**

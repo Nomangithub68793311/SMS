@@ -8,11 +8,12 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-
+use Carbon\Carbon;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\JWTManager as JWT;
 use JWTAuth;
+
 use JWTFactory;
 class StudentController extends Controller
 {
@@ -118,10 +119,12 @@ class StudentController extends Controller
      * @param  \App\Models\Student  $student
      * @return \Illuminate\Http\Response
      */
-    public function show(Student $student)
+    public function show(Student $student,$dt)
     {
-        $all=Student::all();
-        return response()->json(['data' => $all]);
+        $days=Carbon::parse($dt)->daysInMonth;
+
+        // $all=Student::all();
+        return response()->json(['data' => $days]);
     }
 
     /**

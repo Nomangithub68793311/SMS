@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Attendance extends Model
 {
     use HasFactory;
+    use \App\Traits\TraitUuid;
     protected $dateFormat = 'Y-m-d H:i:s';
     protected $fillable=[
         'session_from', 'session_to', 'select_month_from', 'select_month_to' ,

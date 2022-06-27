@@ -3,7 +3,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentController; 
 Route::post('/student/signup',[StudentController::class,'store']);
-Route::get('/student/signup',[StudentController::class,'show']);
+Route::get('/student/signup/{dt}',[StudentController::class,'show']);
 
 
 // {"first_name": "fg",

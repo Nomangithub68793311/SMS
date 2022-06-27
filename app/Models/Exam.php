@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Exam extends Model
 {
+    use \App\Traits\TraitUuid;
     use HasFactory;
     protected $timeFormat = 'H:i:s';
     protected $dateFormat = 'Y-m-d H:i:s';
