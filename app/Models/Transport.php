@@ -12,7 +12,7 @@ class Transport extends Model
     protected $timeFormat = 'H:i:s';
     protected $dateFormat = 'Y-m-d H:i:s';
     protected $fillable=[
-        'route_name', 'vehicle_number', 'license_number', 'select_class'
-        , 'phone_number', 'driver_name'
+        'hostel_name', 'room_number', 'room_type'
+        , 'num_of_bed', 'cost_per_bed'
     ];
 }

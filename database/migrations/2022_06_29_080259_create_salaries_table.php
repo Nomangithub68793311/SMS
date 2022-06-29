@@ -13,18 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('class_routines', function (Blueprint $table) {
-            $table->uuid('id')->primary();          
-            $table->string('teacher_name');
-            $table->integer('id_no');
+        Schema::create('salaries', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('staff_id');
+            $table->string('name');
             $table->string('gender');
-            $table->string('class');
-            $table->string('section');
-            $table->string('subject');
-            $table->date('date');
-            $table->time('time');
-            $table->integer('phone');
+            $table->string('month');
+          
+            $table->integer('amount');
             $table->string('email');
+           
             $table->timestamps();
         });
     }
@@ -36,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('class_routines');
+        Schema::dropIfExists('salaries');
     }
 };

@@ -106,7 +106,8 @@ class TransportController extends Controller
      */
     public function show(Transport $transport)
     {
-        //
+        $Transport=Transport::all();
+        return response()->json(['Transport' => $Transport]);
     }
 
     /**

@@ -14,16 +14,17 @@ return new class extends Migration
     public function up()
     {
         Schema::create('parentmodels', function (Blueprint $table) {
-            $table->uuid('id')->primary();            $table->string('first_name');
+            $table->uuid('id')->primary();           
+             $table->string('first_name');
             $table->string('last_name');
             $table->string('gender');
             $table->date('date_of_birth')->nullable(); 
             $table->integer('id_no');
             $table->string('occupation');
-            $table->string('student_email');
+            $table->string('student_email')->unique();
             $table->string('blood_group');
             $table->string('religion');
-            $table->string('email')->unique();
+            $table->string('email');
             $table->string('class');
             $table->string('section');
             $table->integer('phone');

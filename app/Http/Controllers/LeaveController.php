@@ -3,8 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Leave;
+use Carbon\Carbon;
+use App\Models\Expense;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+use Tymon\JWTAuth\JWTManager as JWT;
+use JWTAuth;
+use JWTFactory;
 class LeaveController extends Controller
 {
     /**
@@ -46,7 +56,8 @@ class LeaveController extends Controller
      */
     public function show(Leave $leave)
     {
-        //
+        $all_leaves = Leave::orderBy('created_at', 'desc')->get();
+        return response()->json(["all_fees"=>$all_leaves]);
     }
 
     /**

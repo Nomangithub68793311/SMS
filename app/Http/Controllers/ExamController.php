@@ -105,7 +105,8 @@ class ExamController extends Controller
      */
     public function show(Exam $exam)
     {
-        //
+        $all_exams = Exam::orderBy('created_at', 'desc')->get();
+        return response()->json(["all_exams"=>$all_exams]);
     }
 
     /**

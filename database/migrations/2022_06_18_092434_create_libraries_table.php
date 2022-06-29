@@ -14,9 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('libraries', function (Blueprint $table) {
-            $table->uuid('id')->primary();            $table->string('book_name');
+            $table->uuid('id')->primary();           
+            $table->string('book_name');
             $table->string('subject');
-            $table->string('Writter_name');
+            $table->string('writer_name');
             $table->string('class');
             $table->integer('book_id');
             $table->date("publish_date")->nullable(); 

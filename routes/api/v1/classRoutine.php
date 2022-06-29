@@ -3,5 +3,5 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ClassRoutineController; 
-Route::post('/classroutine/signup',[ClassRoutineController::class,'store']);
-Route::get('/classroutine/signup',[ClassRoutineController::class,'show']);
+Route::post('/class_routine/add',[ClassRoutineController::class,'store']);
+Route::get('/all/class',[ClassRoutineController::class,'show']);

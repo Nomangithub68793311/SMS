@@ -120,7 +120,8 @@ class TeacherController extends Controller
      */
     public function show(Teacher $teacher)
     {
-        //
+         $all=Teacher::all();
+        return response()->json(['data' => $all]);
     }
 
     /**

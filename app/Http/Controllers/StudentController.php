@@ -83,7 +83,7 @@ class StudentController extends Controller
        ];
        $found=Student::where($matchThese)->first();
         if($found){
-            return response()->json(['success'=>false, 'message' => 'Email ,Roll,Phone,Admission_id Exists']);
+            return response()->json(['success'=>false, 'message' => 'Email ,Roll,Phone,Admission_id Exists'],422);
 
         }
         $ranpass=Str::random(12);
@@ -97,7 +97,7 @@ class StudentController extends Controller
             
             if (!$student) {
                 return response()->json(["error"=>"didnt work"],422);
-            }
+            } 
             
             DB::commit();   
             return response()->json(["email"=>$student->email,"pass"=>$student->password]);
@@ -119,12 +119,12 @@ class StudentController extends Controller
      * @param  \App\Models\Student  $student
      * @return \Illuminate\Http\Response
      */
-    public function show(Student $student,$dt)
+    public function show(Student $student)
     {
-        $days=Carbon::parse($dt)->daysInMonth;
+        // $days=Carbon::parse($dt)->daysInMonth;
 
-        // $all=Student::all();
-        return response()->json(['data' => $days]);
+        $all=Student::all();
+        return response()->json(['data' => $all]);
     }
 
     /**

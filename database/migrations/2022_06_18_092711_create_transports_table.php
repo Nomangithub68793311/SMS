@@ -14,7 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('transports', function (Blueprint $table) {
-            $table->uuid('id')->primary();            $table->string('route_name');
+            $table->uuid('id')->primary();           
+             $table->string('route_name');
             $table->integer('vehicle_number');
             $table->string('license_number');
             $table->integer('phone_number');

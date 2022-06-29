@@ -12,7 +12,7 @@ class Library extends Model
     protected $dateFormat = 'Y-m-d H:i:s';
    
     protected $fillable=[
-        'book_name', 'subject', 'Writter_name', 'class'
+        'book_name', 'subject', 'writer_name', 'class'
         ,'book_id', 'publish_date', 'upload_date',
         
 

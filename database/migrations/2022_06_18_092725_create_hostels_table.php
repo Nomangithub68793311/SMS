@@ -14,11 +14,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('hostels', function (Blueprint $table) {
-            $table->uuid('id')->primary();            $table->string('hostelName');
-            $table->integer('roomNumber');
-            $table->string('roomType');
-            $table->integer('numOfBed');
-            $table->integer('costPerBed');
+            $table->uuid('id')->primary();           
+            $table->string('hostel_name');
+            $table->string('room_number');
+            $table->string('room_type');
+            $table->integer('num_of_bed');
+            $table->integer('cost_per_bed');
             $table->timestamps();
         });
     }

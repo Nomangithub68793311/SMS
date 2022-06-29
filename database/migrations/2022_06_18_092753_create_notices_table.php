@@ -17,7 +17,7 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('title');
             $table->string('posted_by');
-            $table->string('details');
+            $table->longText('details');
             $table->date("post_date")->nullable(); 
             $table->timestamps();
 

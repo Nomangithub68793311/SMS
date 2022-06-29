@@ -14,7 +14,15 @@ return new class extends Migration
     public function up()
     {
         Schema::create('fees', function (Blueprint $table) {
-            $table->id();
+         
+            $table->uuid('id')->primary();
+            $table->string('class');
+            $table->string('section');
+            $table->string('fee_name');
+            $table->integer('fee_amount');
+            $table->string('fee_type');
+            $table->date("starts_from")->nullable(); 
+            $table->date("finishes_at")->nullable(); 
             $table->timestamps();
         });
     }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Expense;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -105,7 +106,8 @@ class ExpenseController extends Controller
      */
     public function show(Expense $expense)
     {
-        //
+        $all_expenses = Expense::orderBy('created_at', 'desc')->get();
+        return response()->json(["all_expenses"=>$all_expenses]);
     }
 
     /**
