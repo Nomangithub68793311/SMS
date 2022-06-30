@@ -103,7 +103,7 @@ class SubjectController extends Controller
     public function show(Subject $subject)
     {
         $Subject = Subject::orderBy('created_at', 'desc')->get();
-        return response()->json(["Subject"=>$Subject]);
+        return response()->json(["subject"=>$Subject]);
     }
 
     /**

@@ -17,9 +17,15 @@ class Student extends Model
     protected $fillable=[
         'first_name', 'last_name','gender', 'date_of_birth', 'roll',
         'blood_group', 'religion', 'email','class', 'section', 'admission_id',
-        'phone','address','bio','password','hashedPassword'
+        'phone','address','bio','password','hashedPassword','admitted_year'
 
 
 
     ];
+    protected static function booted()
+    {
+        static::creating(function (Model $model) {
+            $model->admitted_year = $model->freshTimestamp();
+        });
+    }
 }

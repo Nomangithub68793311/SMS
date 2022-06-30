@@ -28,7 +28,7 @@ class NoticeController extends Controller
         // $news = Notice::with(['title' => function($q){
         //     $q->take(3);
         // }])->get();
-        return response()->json(["news"=> $news ]);
+        return response()->json(["notice"=> $news ]);
 
     }
 

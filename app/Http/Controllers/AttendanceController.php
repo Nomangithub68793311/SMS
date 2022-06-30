@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Attendance;
+use Carbon\Carbon;
+use App\Models\Holiday;
+use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -65,6 +68,25 @@ class AttendanceController extends Controller
     public function edit(Attendance $attendance)
     {
         //
+    }
+    
+    public function getData($day,$class,$section)
+    {
+        $day = Carbon::parse($day)->format('l');
+        if($day == 'Friday'){
+            return response()->json([ 'message' => 'no class'],422);
+
+        }
+        // $holiday=Holiday::where('date','=',$day)->first();
+        // if($holiday){
+        //     return response()->json([ 'message' => 'no class'],422);
+ 
+        // }
+        $matchthis=['class' =>$class, 'section' =>$section];
+        $stu = Student::where($matchthis)->select('first_name','last_name','email')->get();
+        return response()->json([ 'stu' =>$stu]);
+
+
     }
 
     /**

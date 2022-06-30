@@ -113,7 +113,7 @@ class HostelController extends Controller
     public function show(Hostel $hostel)
     {
         $Hostel = Hostel::orderBy('created_at', 'desc')->get();
-        return response()->json(["Hostel"=>$Hostel]);
+        return response()->json(["hostel"=>$Hostel]);
     }
 
     /**

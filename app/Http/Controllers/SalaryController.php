@@ -109,7 +109,7 @@ class SalaryController extends Controller
     public function show(Salary $salary)
     {
         $Salary = Salary::orderBy('created_at', 'desc')->get();
-        return response()->json(["Salary"=>$Salary]);
+        return response()->json(["salary"=>$Salary]);
     }
 
     /**

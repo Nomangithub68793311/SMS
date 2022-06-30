@@ -74,12 +74,13 @@ class ParentmodelController extends Controller
         }
         $matchThese = [
         'id_no' => $request->id_no,
-       
         'student_email' => $request->student_email,
+        'class' => $request->class,
+        'section' => $request->section,
        ];
        $found=Parentmodel::where($matchThese)->first();
         if($found){
-            return response()->json(['success'=>false, 'message' => 'Email ,Phone,Id_no Exists'],422);
+            return response()->json(['success'=>false, 'message' => 'Student email Exists'],422);
 
         }
         $ranpass=Str::random(12);

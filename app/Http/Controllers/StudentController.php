@@ -74,18 +74,32 @@ class StudentController extends Controller
             return response()->json(["error"=>'fails']);
 
         }
-        $matchThese = ['email' => $request->email,
-        'roll' => $request->roll,
-        'phone' => $request->phone,
-        'admission_id' => $request->admission_id
-
-       
-       ];
-       $found=Student::where($matchThese)->first();
+        $matchThese = ['email' => $request->email];
+      
+        $found=Student::where($matchThese)->first();
         if($found){
-            return response()->json(['success'=>false, 'message' => 'Email ,Roll,Phone,Admission_id Exists'],422);
+            return response()->json(['success'=>false, 'message' => 'Email Exists'],422);
 
         }
+        $found_with_admission_id=Student::where('admission_id','=',$request->admission_id)->first();
+        if($found_with_admission_id){
+            return response()->json(['success'=>false, 'message' => 'Admission id should not be matched'],422);
+
+        }
+        $found_with_phone=Student::where('phone','=',$request->phone)->first();
+        if($found_with_phone){
+            return response()->json(['success'=>false, 'message' => 'phone number should not be matched'],422);
+
+        }
+        $matchThese = ['class' => $request->class,
+        'section' => $request->section,
+        'roll' => $request->roll];
+        $found_with_roll=Student::where($matchThese )->first();
+        if($found_with_roll){
+            return response()->json(['success'=>false, 'message' => 'Can not have same class and section with same roll number'],422);
+
+        }
+
         $ranpass=Str::random(12);
         $input['password'] =$ranpass;
         $input['hashedPassword'] = Hash::make($ranpass); 
@@ -124,7 +138,7 @@ class StudentController extends Controller
         // $days=Carbon::parse($dt)->daysInMonth;
 
         $all=Student::all();
-        return response()->json(['data' => $all]);
+        return response()->json(['student' => $all]);
     }
 
     /**

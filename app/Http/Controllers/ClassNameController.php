@@ -71,7 +71,7 @@ class ClassNameController extends Controller
         }
         $found=ClassName::where('id_no','=',$request->id_no)->first();
         if($found){
-            return response()->json(['success'=>false, 'message' => 'Book Exists']);
+            return response()->json(['success'=>false, 'message' => 'Id Exists'],422);
 
         }
         
@@ -109,7 +109,8 @@ class ClassNameController extends Controller
      */
     public function show(ClassName $className)
     {
-        //
+        $class = ClassName::orderBy('created_at', 'desc')->get();
+        return response()->json(["class"=>$class]);
     }
 
     /**

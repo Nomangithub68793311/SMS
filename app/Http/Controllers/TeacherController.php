@@ -68,13 +68,24 @@ class TeacherController extends Controller
             return response()->json(["error"=>'fails']);
 
         }
-        $matchThese = ['email' => $request->email,
-        'id_no' => $request->id_no,
-        'phone' => $request->phone,
-       ];
+        $matchThese = ['email' => $request->email ];
        $found=Teacher::where($matchThese)->first();
         if($found){
-            return response()->json(['success'=>false, 'message' => 'Email, Phone, Id_no Exists']);
+            return response()->json(['success'=>false, 'message' => 'Email Exists']);
+
+        }
+        $matchThese = ['id_no' => $request->id_no];
+       $found_wth_id=Teacher::where($matchThese)->first();
+        if($found_wth_id){
+            return response()->json(['success'=>false, 'message' => 'Id_no Exists']);
+
+        }
+        $matchThese = [
+        'phone' => $request->phone
+       ];
+       $found_with_phone=Teacher::where($matchThese)->first();
+        if($found_with_phone){
+            return response()->json(['success'=>false, 'message' => 'Phone Exists']);
 
         }
        

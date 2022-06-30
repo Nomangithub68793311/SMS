@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 use App\Models\Admin;
 use App\Models\Student;
 use Carbon\Carbon;
+use App\Models\Earning;
 use App\Models\Notice;
 use App\Models\Teacher;
 use App\Models\Parentmodel;
@@ -39,6 +40,8 @@ class AdminController extends Controller
             $total_teachers = Teacher::count();
             $total_parents = Parentmodel::count();
             $total_expenses =Expense::get()->sum("amount");
+            $total_parents = Parentmodel::count();
+            $total_earnings =Earning::get()->sum("amount");
         //    DB::table('notice')->orderBy('id')->chunk(3, function ($contacts) {
         //         foreach ($contacts as $contact) {
         //             echo $contacts;
@@ -50,7 +53,7 @@ class AdminController extends Controller
             //  });
             //  return $chunks;
             
-            if (!$total_students && !$chunks && !$total_male &&  !$total_female && !$total_teachers && !$total_parents && !$total_expenses ) {
+            if (!$total_students && !$total_earnings && !$chunks && !$total_male &&  !$total_female && !$total_teachers && !$total_parents && !$total_expenses ) {
                 return response()->json(["error"=>"didnt work"],422);
             }
             
@@ -63,6 +66,7 @@ class AdminController extends Controller
                 "total_teachers"=>$total_teachers,
                 "total_parents"=>$total_parents,
                 "total_expenses"=>$total_expenses,
+                "total_earnings"=>$total_earnings,
                 "notice"=> $chunks
                  
             
