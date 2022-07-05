@@ -26,6 +26,13 @@ return new class extends Migration
             $table->string('class');
             $table->string('section');
             $table->integer('admission_id');
+            
+            $table->string('testimonial');
+            $table->string('certificate');    
+            $table->string('signature');
+            $table->string('marksheet');
+            $table->string('photo');
+
             $table->integer('phone');
             $table->date('admitted_year');
             $table->string('address');

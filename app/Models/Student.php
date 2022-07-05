@@ -17,8 +17,8 @@ class Student extends Model
     protected $fillable=[
         'first_name', 'last_name','gender', 'date_of_birth', 'roll',
         'blood_group', 'religion', 'email','class', 'section', 'admission_id',
-        'phone','address','bio','password','hashedPassword','admitted_year'
-
+        'phone','address','bio','password','hashedPassword','admitted_year',
+        'testimonial','certificate','signature','marksheet','photo'
 
 
     ];

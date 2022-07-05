@@ -54,7 +54,8 @@ class StudentController extends Controller
     {
         $input = $request->only('first_name', 'last_name','gender', 'date_of_birth', 'roll',
         'blood_group', 'religion', 'email','class', 'section', 'admission_id',
-        'phone','address','bio' );
+        'phone','address','bio','testimonial','certificate','signature','marksheet','photo'
+     );
     
                               
 
@@ -72,7 +73,13 @@ class StudentController extends Controller
             'phone' => 'required',
             'bio' => 'required',
             'address' => 'required',
-            'date_of_birth' => 'required'
+            'date_of_birth' => 'required',
+
+            'testimonial' => 'required',
+            'certificate' => 'required',
+            'signature' => 'required',
+            'marksheet' => 'required',
+            'photo' => 'required'
         ]);
 
         if($validator->fails()){
