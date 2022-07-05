@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentController; 
 Route::post('/student/signup',[StudentController::class,'store']);
 Route::get('/student/all',[StudentController::class,'show']);
+Route::get('/student/check',[StudentController::class,'check']);
 
 
 // {"first_name": "fg",

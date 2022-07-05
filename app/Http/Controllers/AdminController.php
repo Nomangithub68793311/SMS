@@ -47,13 +47,13 @@ class AdminController extends Controller
         //             echo $contacts;
         //         }
         //     });
-            $chunks  = Notice::whereDate('created_at',Carbon::today())->get();
+       $notice= Notice::orderBy('created_at', 'desc')->get();
             // $chunks = $notices->map(function($notice) {
             //     return $notice = $notice->values();
             //  });
             //  return $chunks;
             
-            if (!$total_students && !$total_earnings && !$chunks && !$total_male &&  !$total_female && !$total_teachers && !$total_parents && !$total_expenses ) {
+            if (!$total_students && !$total_earnings && !$notice && !$total_male &&  !$total_female && !$total_teachers && !$total_parents && !$total_expenses ) {
                 return response()->json(["error"=>"didnt work"],422);
             }
             
@@ -67,7 +67,7 @@ class AdminController extends Controller
                 "total_parents"=>$total_parents,
                 "total_expenses"=>$total_expenses,
                 "total_earnings"=>$total_earnings,
-                "notice"=> $chunks
+                "notice"=> $notice
                  
             
             ]);

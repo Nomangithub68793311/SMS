@@ -13,7 +13,7 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\JWTManager as JWT;
 use JWTAuth;
-
+use Illuminate\Support\Facades\Http;
 use JWTFactory;
 class StudentController extends Controller
 {
@@ -32,11 +32,16 @@ class StudentController extends Controller
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\Response check
      */
     public function create()
     {
         //
+    }
+    public function check()
+    {
+        return response()->json(['success'=>true, 'message' => 'listening from linux ubuntu'],422);
+
     }
 
     /**
@@ -112,14 +117,17 @@ class StudentController extends Controller
             if (!$student) {
                 return response()->json(["error"=>"didnt work"],422);
             } 
-            
+            // $response = Http::post('http://127.0.0.1:8000/v1/event', [
+            //     "email"=>$student->email
+                
+            // ]);
             DB::commit();   
-            return response()->json(["email"=>$student->email,"pass"=>$student->password]);
+            return  response()->json(["email"=>$student->email,"pass"=>$student->password]);
         }
             catch (\Exception $e) {
             DB::rollback();   
              
-        return response()->json(["error"=>"didnt work"],422);
+        return response()->json(["error"=>"no process"],422);
     }
         // $payload = JWTFactory::sub($student->id)
         // ->myCustomObject($account)
