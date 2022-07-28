@@ -148,6 +148,38 @@ class StudentController extends Controller
      * @param  \App\Models\Student  $student
      * @return \Illuminate\Http\Response
      */
+    public function login(Request $request)
+    {
+        $input = $request->only('email', 'password');
+        $validator = Validator::make($input, [
+        
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:8'
+        ]);
+        $matchThese = ['email' => $request->email];
+      
+        $found=Student::where($matchThese)->first();
+        if($found){
+            $date1 = Carbon::parse($found->payment_date);
+            $now = Carbon::now();
+            $diff = $date1->diffInDays($now);
+            if($diff >30){
+                return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
+            }
+            if (!Hash::check($request->password, $found->password)) {
+                return response()->json(['success'=>false, 'message' => 'Login Fail, please check password']);
+             }
+             $payload = JWTFactory::sub($found->id)
+        // ->myCustomObject($account)
+        ->make();
+        $token = JWTAuth::encode($payload);
+            return response()->json(['success'=>true, 'token' =>  $token ]);
+
+        }
+        return response()->json(['success'=>false, 'message' => 'Email not found!'],422);
+
+    }
+
     public function show(Student $student)
     {
         // $days=Carbon::parse($dt)->daysInMonth;
