@@ -126,24 +126,30 @@ class ParentmodelController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8'
         ]);
+        if($validator->fails()){
+            return response()->json(["error"=>"email or password fail"],422);
+
+        }
         $matchThese = ['email' => $request->email];
       
         $found=Parentmodel::where($matchThese)->first();
         if($found){
-            $date1 = Carbon::parse($found->payment_date);
-            $now = Carbon::now();
-            $diff = $date1->diffInDays($now);
-            if($diff >30){
-                return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
-            }
-            if (!Hash::check($request->password, $found->password)) {
-                return response()->json(['success'=>false, 'message' => 'Login Fail, please check password']);
+            // $date1 = Carbon::parse($found->payment_date);
+            // $now = Carbon::now();
+            // $diff = $date1->diffInDays($now);
+            // if($diff >30){
+            //     return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
+            // }
+            if (!Hash::check($request->password, $found->hashedPassword)) {
+                return response()->json(['success'=>false, 'message' => 'Login Fail, please check password'],422);
              }
              $payload = JWTFactory::sub($found->id)
-        // ->myCustomObject($account)
-        ->make();
-        $token = JWTAuth::encode($payload);
-            return response()->json(['success'=>true, 'token' =>  $token ]);
+             // ->myCustomObject($customClaims)
+             // ->prv(env('JWT_SECRET_PRV'))
+             ->make();
+ 
+         $token = JWTAuth::encode($payload);
+             return response()->json(['success'=>true, 'token' => '1'.$token]);
 
         }
         return response()->json(['success'=>false, 'message' => 'Email not found!'],422);

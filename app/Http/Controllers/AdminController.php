@@ -7,6 +7,8 @@ use App\Models\Admin;
 use App\Models\Student;
 use Carbon\Carbon;
 use App\Models\Earning;
+use Illuminate\Support\Facades\Redis;
+
 use App\Models\Notice;
 use App\Models\Teacher;
 use App\Models\Parentmodel;
@@ -29,6 +31,18 @@ class AdminController extends Controller
      */
     public function all()
     {
+        
+        $cachedInfo = Redis::hgetall('hello');
+        if($cachedInfo) {
+            // $cachedInfo = json_decode($cachedInfo, FALSE);
+      
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from redis',
+                'data' => $cachedInfo,
+            ]);
+        }else{
+
         try {
             // begin transaction
             DB::beginTransaction();
@@ -54,12 +68,13 @@ class AdminController extends Controller
             //  return $chunks;
             
             if (!$total_students && !$total_earnings && !$notice && !$total_male &&  !$total_female && !$total_teachers && !$total_parents && !$total_expenses ) {
-                return response()->json(["error"=>"didnt work"],422);
+                return response()->json(["error"=>"not enough info"],422);
             }
             
     //        Happy ending :)
-            DB::commit();   
-            return response()->json([
+            DB::commit();  
+           $all_keys= Redis::get('*'); 
+            $data=[
                 "total_students"=>$total_students,
                 "total_male"=>$total_male,
                 "total_female"=>$total_female,
@@ -67,8 +82,16 @@ class AdminController extends Controller
                 "total_parents"=>$total_parents,
                 "total_expenses"=>$total_expenses,
                 "total_earnings"=>$total_earnings,
-                "notice"=> $notice
-                 
+                "notice"=> $notice,
+                "all_keys"=>$all_keys
+            ];
+
+            Redis::hmset('hello', $data);
+            Redis::expire('hello',5);
+            return response()->json([
+                "data"=>$data,
+                "message" => 'Fetched from database',
+
             
             ]);
         }
@@ -76,8 +99,9 @@ class AdminController extends Controller
             // May day,  rollback!!! rollback!!!
             DB::rollback();   
              
-        return response()->json(["error"=>"didnt work"],422);
+        return response()->json(["error"=>"not work"],422);
             }
+        }
     }
 
     /**
@@ -138,24 +162,28 @@ class AdminController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8'
         ]);
+        if($validator->fails()){
+            return response()->json(["error"=>'email or password fail'],422);
+
+        }
         $matchThese = ['email' => $request->email];
       
         $found=Admin::where($matchThese)->first();
         if($found){
-            $date1 = Carbon::parse($found->payment_date);
-            $now = Carbon::now();
-            $diff = $date1->diffInDays($now);
-            if($diff >30){
-                return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
-            }
-            if (!Hash::check($request->password, $found->password)) {
-                return response()->json(['success'=>false, 'message' => 'Login Fail, please check password']);
+            // $date1 = Carbon::parse($found->payment_date);
+            // $now = Carbon::now();
+            // $diff = $date1->diffInDays($now);
+            // if($diff >30){
+            //     return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
+            // }
+            if (!Hash::check($request->password, $found->hashedPassword)) {
+                return response()->json(['success'=>false, 'message' => 'Login Fail, please check password'],422);
              }
              $payload = JWTFactory::sub($found->id)
         // ->myCustomObject($account)
         ->make();
         $token = JWTAuth::encode($payload);
-            return response()->json(['success'=>true, 'token' =>  $token ]);
+            return response()->json(['success'=>true, 'token' => '1'. $token ]);
 
         }
         return response()->json(['success'=>false, 'message' => 'Email not found!'],422);

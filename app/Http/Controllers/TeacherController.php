@@ -108,7 +108,7 @@ class TeacherController extends Controller
             
             // Happy ending :)
             DB::commit();   
-            return response()->json(["Teacher"=>$Teacher]);
+            return response()->json(["Teacher"=>$Teacher->email,"pass"=>$Teacher->password]);
         }
             catch (\Exception $e) {
             // May day,  rollback!!! rollback!!!
@@ -138,24 +138,33 @@ class TeacherController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8'
         ]);
+        if($validator->fails()){
+            return response()->json(["error"=>'email or password fail'],422);
+
+        }
         $matchThese = ['email' => $request->email];
       
         $found=Teacher::where($matchThese)->first();
         if($found){
-            $date1 = Carbon::parse($found->payment_date);
-            $now = Carbon::now();
-            $diff = $date1->diffInDays($now);
-            if($diff >30){
-                return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
-            }
-            if (!Hash::check($request->password, $found->password)) {
-                return response()->json(['success'=>false, 'message' => 'Login Fail, please check password']);
+            // $date1 = Carbon::parse($found->payment_date);
+            // $now = Carbon::now();
+            // $diff = $date1->diffInDays($now);
+            // if($diff >30){
+            //     return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
+            // }
+            if (!Hash::check($request->password, $found->hashedPassword)) {
+                return response()->json(['success'=>false, 'message' => 'Login Fail, please check password'],422);
              }
-             $payload = JWTFactory::sub($found->id)
-        // ->myCustomObject($account)
-        ->make();
+            // $customClaims = ['foo' => 'bar', 'baz' => 'bob'];
+
+
+            $payload = JWTFactory::sub($found->id)
+            // ->myCustomObject($customClaims)
+            // ->prv(env('JWT_SECRET_PRV'))
+            ->make();
+
         $token = JWTAuth::encode($payload);
-            return response()->json(['success'=>true, 'token' =>  $token ]);
+            return response()->json(['success'=>true, 'token' => '1'.$token]);
 
         }
         return response()->json(['success'=>false, 'message' => 'Email not found!'],422);

@@ -9,6 +9,8 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Redis;
+
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\JWTManager as JWT;
@@ -43,6 +45,30 @@ class StudentController extends Controller
         return response()->json(['success'=>true, 'message' => 'listening from linux ubuntu'],422);
 
     }
+    public function all()
+    {
+        $cachedBlog = Redis::get('new');
+
+
+        if(isset($cachedBlog)) {
+            $blog = json_decode($cachedBlog, FALSE);
+      
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from redis',
+                'data' => $blog,
+            ]);
+        }else {
+            $student = Student::all();
+            Redis::set('new', $student);
+      
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $student,
+            ]);
+        }
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -50,12 +76,14 @@ class StudentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        $input = $request->only('first_name', 'last_name','gender', 'date_of_birth', 'roll',
-        'blood_group', 'religion', 'email','class', 'section', 'admission_id',
-        'phone','address','bio','testimonial','certificate','signature','marksheet','photo'
-     );
+    
+     public function store(Request $request)
+     {
+         $input = $request->only('first_name', 'last_name','gender', 'date_of_birth', 'roll',
+         'blood_group', 'religion', 'email','class', 'section', 'admission_id',
+         'phone','address','bio','testimonial','certificate','signature','marksheet','photo'
+      );
+     
     
                               
 
@@ -156,24 +184,34 @@ class StudentController extends Controller
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8'
         ]);
+        if($validator->fails()){
+            return response()->json(["error"=>'email or password fail'],422);
+
+        }
         $matchThese = ['email' => $request->email];
       
         $found=Student::where($matchThese)->first();
         if($found){
-            $date1 = Carbon::parse($found->payment_date);
-            $now = Carbon::now();
-            $diff = $date1->diffInDays($now);
-            if($diff >30){
-                return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
-            }
-            if (!Hash::check($request->password, $found->password)) {
-                return response()->json(['success'=>false, 'message' => 'Login Fail, please check password']);
+            // $date1 = Carbon::parse($found->payment_date);
+            // $now = Carbon::now();
+            // $diff = $date1->diffInDays($now);
+            // if($diff >30){
+            //     return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
+            // }
+            if (!Hash::check($request->password, $found->hashedPassword)) {
+                return response()->json(['success'=>false, 'message' => 'Login Fail, please check password'],422);
              }
-             $payload = JWTFactory::sub($found->id)
-        // ->myCustomObject($account)
-        ->make();
+       
+        // $customClaims = ['foo' => 'bar', 'baz' => 'bob'];
+
+
+            $payload = JWTFactory::sub($found->id)
+            // ->myCustomObject($customClaims)
+            // ->prv(env('JWT_SECRET_PRV'))
+            ->make();
+
         $token = JWTAuth::encode($payload);
-            return response()->json(['success'=>true, 'token' =>  $token ]);
+            return response()->json(['success'=>true, 'token' => '1'.$token]);
 
         }
         return response()->json(['success'=>false, 'message' => 'Email not found!'],422);
