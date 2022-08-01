@@ -17,9 +17,13 @@ class Parentmodel extends Model
     protected $fillable=[
         'first_name', 'last_name','gender', 'date_of_birth', 'id_no','occupation','student_email',
         'blood_group', 'religion', 'email','class', 'section',
-        'phone','address','bio','password','hashedPassword'
+        'phone','address','bio','password','hashedPassword','admin_id'
 
 
 
     ];
+    // public function adminSignup()
+    // {
+    //     return $this->belongsTo(AdminSignup::class);
+    // }
 }

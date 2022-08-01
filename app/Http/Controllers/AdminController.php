@@ -8,7 +8,7 @@ use App\Models\Student;
 use Carbon\Carbon;
 use App\Models\Earning;
 use Illuminate\Support\Facades\Redis;
-
+use App\Models\School;
 use App\Models\Notice;
 use App\Models\Teacher;
 use App\Models\Parentmodel;
@@ -29,15 +29,17 @@ class AdminController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function all()
+    public function all($id)
     {
-        
-        $cachedInfo = Redis::hgetall('hello');
+        // return response()->json(["id"=>$id]);
+
+        $cachedInfo = Redis::hgetall('yes'.$id);
+        // return response()->json(["get"=> 'yes'.$id ]);
+
         if($cachedInfo) {
-            // $cachedInfo = json_decode($cachedInfo, FALSE);
       
             return response()->json([
-                'status_code' => 201,
+           
                 'message' => 'Fetched from redis',
                 'data' => $cachedInfo,
             ]);
@@ -73,7 +75,7 @@ class AdminController extends Controller
             
     //        Happy ending :)
             DB::commit();  
-           $all_keys= Redis::get('*'); 
+        //    $all_keys= Redis::get('*'); 
             $data=[
                 "total_students"=>$total_students,
                 "total_male"=>$total_male,
@@ -83,11 +85,10 @@ class AdminController extends Controller
                 "total_expenses"=>$total_expenses,
                 "total_earnings"=>$total_earnings,
                 "notice"=> $notice,
-                "all_keys"=>$all_keys
             ];
 
-            Redis::hmset('hello', $data);
-            Redis::expire('hello',5);
+            Redis::hmset('yes'.$id, $data);
+            Redis::expire('yes'.$id,5);
             return response()->json([
                 "data"=>$data,
                 "message" => 'Fetched from database',
@@ -99,9 +100,9 @@ class AdminController extends Controller
             // May day,  rollback!!! rollback!!!
             DB::rollback();   
              
-        return response()->json(["error"=>"not work"],422);
+        return response()->json(["error"=>"not work again"],422);
             }
-        }
+         }
     }
 
     /**
@@ -166,9 +167,9 @@ class AdminController extends Controller
             return response()->json(["error"=>'email or password fail'],422);
 
         }
-        $matchThese = ['email' => $request->email];
+        $matchThese = ['institution_email' => $request->email];
       
-        $found=Admin::where($matchThese)->first();
+        $found=School::where($matchThese)->first();
         if($found){
             // $date1 = Carbon::parse($found->payment_date);
             // $now = Carbon::now();
@@ -183,7 +184,7 @@ class AdminController extends Controller
         // ->myCustomObject($account)
         ->make();
         $token = JWTAuth::encode($payload);
-            return response()->json(['success'=>true, 'token' => '1'. $token ]);
+            return response()->json(['success'=>true, 'token' => '1'. $token ,"id"=>$found->id]);
 
         }
         return response()->json(['success'=>false, 'message' => 'Email not found!'],422);
@@ -196,6 +197,11 @@ class AdminController extends Controller
      * @param  \App\Models\Admin  $admin
      * @return \Illuminate\Http\Response
      */
+
+    public function logout(Admin $admin)
+    {
+        //
+    }
     public function edit(Admin $admin)
     {
         //

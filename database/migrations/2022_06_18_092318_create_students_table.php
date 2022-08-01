@@ -40,7 +40,14 @@ return new class extends Migration
             $table->string('password');
             $table->string('bio'); 
             // $table->json('votes_detail');
+           
+
+
             $table->timestamps();
+            // $table->uuid('school_id');
+            // $table->foreign('school_id')
+            // ->references('id')
+            // ->on('schools');
         });
     }
 

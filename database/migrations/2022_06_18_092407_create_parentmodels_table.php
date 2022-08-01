@@ -32,7 +32,14 @@ return new class extends Migration
             $table->string('bio');
             $table->string('hashedPassword');
             $table->string('password');
+
+          
+
             $table->timestamps();
+            // $table->uuid('admin_signup_id');
+            // $table->foreign('admin_signup_id')
+            // ->references('id')
+            // ->on('admin_signups');
         });
     }
 

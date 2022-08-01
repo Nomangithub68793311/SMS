@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Parentmodel;
 use App\Models\Student;
-
+use App\Models\AdminSignup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -91,10 +91,11 @@ class ParentmodelController extends Controller
         try {
             // begin transaction
             DB::beginTransaction();
-            
+            $school=AdminSignup::find($id);
             // write your dependent quires here
             $parent = Parentmodel::create($input); // eloquent creation of data
-
+            $school->parentmodel()->save($parent);
+            $parent->save();
             
             if (!$parent) {
                 return response()->json(["error"=>"didnt work"],422);

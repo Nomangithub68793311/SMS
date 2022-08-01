@@ -14,7 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('teachers', function (Blueprint $table) {
-            $table->uuid('id')->primary();            $table->string('first_name');
+            $table->uuid('id')->primary();           
+             $table->string('first_name');
             $table->string('last_name');
             $table->string('gender');
             $table->date('date_of_birth')->nullable(); 
@@ -29,7 +30,14 @@ return new class extends Migration
             $table->string('bio');
             $table->string('hashedPassword');
             $table->string('password');
+
+            
+
             $table->timestamps();
+            // $table->uuid('admin_signup_id');
+            // $table->foreign('admin_signup_id')
+            // ->references('id')
+            // ->on('admin_signups');
         });
     }
 

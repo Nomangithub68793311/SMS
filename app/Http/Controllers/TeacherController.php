@@ -5,6 +5,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
+use App\Models\School;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -97,18 +98,19 @@ class TeacherController extends Controller
         try {
             // begin transaction
             DB::beginTransaction();
-            
+            // $school=School::find($id);
             // write your dependent quires here
-            $Teacher = Teacher::create($input); // eloquent creation of data
+            $teacher = Teacher::create($input); // eloquent creation of data
 
-            
-            if (!$Teacher) {
+            // $school->teacher()->save($teacher);
+            // $teacher->save();
+            if (!$teacher) {
                 return response()->json(["error"=>"didnt work"],422);
             }
             
             // Happy ending :)
             DB::commit();   
-            return response()->json(["Teacher"=>$Teacher->email,"pass"=>$Teacher->password]);
+            return response()->json(["Teacher"=>$teacher->email,"pass"=>$teacher->password]);
         }
             catch (\Exception $e) {
             // May day,  rollback!!! rollback!!!

@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Redis;
-
+use App\Models\School;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\JWTManager as JWT;
@@ -77,7 +77,7 @@ class StudentController extends Controller
      * @return \Illuminate\Http\Response
      */
     
-     public function store(Request $request)
+     public function store(Request $request,$id)
      {
          $input = $request->only('first_name', 'last_name','gender', 'date_of_birth', 'roll',
          'blood_group', 'religion', 'email','class', 'section', 'admission_id',
@@ -145,9 +145,11 @@ class StudentController extends Controller
         $input['hashedPassword'] = Hash::make($ranpass); 
         try {
             DB::beginTransaction();
+            // $school=School::find($id);
             
             $student = Student::create($input); // eloquent creation of data
-
+            // $school->student()->save($student);
+            // $student->save();
             
             if (!$student) {
                 return response()->json(["error"=>"didnt work"],422);

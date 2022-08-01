@@ -15,9 +15,11 @@ class AdminUser extends Model
         
     ];
     protected $fillable=[
-        'first_name', 'last_name','gender', 'date_of_birth',
-        'fathers_name', 'religion', 'email','mothers_name', 'joining_date',
-        'phone','address','id_no','password','hashedPassword'
+        'institution_name', 'address', 'city','hashedPassword','password',
+        'zip_code', 'institution_type', 'institution_medium','country', 
+        'website','phone_no','mobile_no','principal_phone_no',
+        'license_copy','logo','payment_status','category','establishment_year',
+        'principal_name','institution_email','principal_email','total_students',
 
 
     ];

@@ -18,7 +18,7 @@ class Student extends Model
         'first_name', 'last_name','gender', 'date_of_birth', 'roll',
         'blood_group', 'religion', 'email','class', 'section', 'admission_id',
         'phone','address','bio','password','hashedPassword','admitted_year',
-        'testimonial','certificate','signature','marksheet','photo'
+        'testimonial','certificate','signature','marksheet','photo','admin_id'
 
 
     ];
@@ -28,4 +28,9 @@ class Student extends Model
             $model->admitted_year = $model->freshTimestamp();
         });
     }
+
+    // public function school()
+    // {
+    //     return $this->belongsTo(School::class);
+    // }
 }
