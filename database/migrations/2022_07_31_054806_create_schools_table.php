@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('institution_type');
             $table->string('institution_medium');
             $table->string('country');
-            $table->string('role')->nullable(); 
+            $table->string('role')->default('super admin'); 
             $table->string('category');
             $table->string('website')->nullable(); 
             $table->string('phone_no')->unique();
