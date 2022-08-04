@@ -18,10 +18,12 @@ return new class extends Migration
             $table->string('institution_name');
             $table->string('address');
             $table->string('city');
+            $table->string('user_name');
             $table->integer('zip_code');  
             $table->string('institution_type');
             $table->string('institution_medium');
             $table->string('country');
+            $table->string('role')->nullable(); 
             $table->string('category');
             $table->string('website')->nullable(); 
             $table->string('phone_no')->unique();

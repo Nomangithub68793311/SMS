@@ -17,12 +17,14 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('first_name');
             $table->string('last_name');
-            $table->string('gender');  
+            $table->string('gender');
+            $table->string('user_name');  
             $table->string('fathers_name');
             $table->string('mothers_name');
             $table->date('joining_date')->nullable();
             $table->date('date_of_birth')->nullable();
             $table->string('email'); 
+            $table->string('role')->default('admin'); 
             $table->integer('phone');    
             $table->string('address');
             $table->string('religion');

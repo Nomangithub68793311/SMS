@@ -16,16 +16,19 @@ return new class extends Migration
         Schema::create('class_routines', function (Blueprint $table) {
             $table->uuid('id')->primary();          
             $table->string('teacher_name');
-            $table->integer('id_no');
-            $table->string('gender');
+            
             $table->string('class');
             $table->string('section');
             $table->string('subject');
             $table->date('date');
             $table->time('time');
-            $table->integer('phone');
             $table->string('email');
             $table->timestamps();
+            $table->uuid('school_id')->nullable(); 
+            $table->foreign('school_id')
+            ->references('id')
+            ->on('schools')
+            ->onDelete('cascade');
         });
     }
 

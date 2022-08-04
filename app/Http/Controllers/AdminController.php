@@ -54,7 +54,7 @@ class AdminController extends Controller
 
             // write your dependent quires here
             $total_students = School::find($id)->student; // eloquent creation of data
-
+            $school = School::find($id);
 
             $total_male=School::find($id)->student()->where('gender', 'male')->get();
             $total_female=School::find($id)->student()->where('gender', 'female')->get();
@@ -90,7 +90,9 @@ class AdminController extends Controller
                 "total_female"=>$total_female->count(),
                 "total_teachers"=>$total_teachers->count(),
                 "total_parents"=>$total_parents->count(),
-                // "id" => 'yes'.$id
+                
+                "school_name"=>$school->institution_name,
+                "role"=>"super admin"
 
                 // "total_expenses"=>$total_expenses,
                 // "total_earnings"=>$total_earnings,

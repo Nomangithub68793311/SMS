@@ -7,5 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Holiday extends Model
 {
+    use \App\Traits\TraitUuid;
     use HasFactory;
+    protected $dateFormat = 'Y-m-d H:i:s';
+   
+    protected $fillable=[
+        'holiday_name', 'date'
+    ];
+    public function school()
+    {
+     return $this->belongsTo(School::class);
+    }
 }

@@ -72,7 +72,15 @@ class School extends Model
    }
    public function adminUser()
    {
-    return $this->hasMany(AdminUser::class);
+    return $this->hasMany(AdminUser::class); 
+   }
+   public function classRoutine()
+   {
+    return $this->hasMany(ClassRoutine::class);
+   }
+   public function holiday()
+   {
+    return $this->hasMany(Holiday::class);
    }
     
     

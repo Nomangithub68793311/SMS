@@ -13,8 +13,11 @@ class ClassRoutine extends Model
     protected $dateFormat = 'Y-m-d H:i:s';
     protected $timeFormat = 'H:i:s';
     protected $fillable=[
-        'teacher_name', 'id_no', 'gender', 'class'
-        , 'section', 'subject','date', 'time', 'phone', 'email'
+        'teacher_name', 'class'
+        , 'section', 'subject','date', 'time', 'email'
     ];
-
+    public function school()
+    {
+     return $this->belongsTo(School::class);
+    }
 }

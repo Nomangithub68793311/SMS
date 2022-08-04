@@ -160,6 +160,7 @@ $matchThese = ['institution_email' => $request->email];
             $found_with_institution_email->hashedPassword=Hash::make($ranpass);
             $found_with_institution_email->login_permitted=true;
             $found_with_institution_email->payment_status=true;
+            $found_with_institution_email->role="superadmin";
             $found_with_institution_email->save();
             return response()->json(['success'=>true, 'email' =>  $found_with_institution_email->institution_email,"password"=> $found_with_institution_email->password]);
 

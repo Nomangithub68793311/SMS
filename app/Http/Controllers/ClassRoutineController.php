@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\JWTManager as JWT;
+use App\Models\School;
+use Illuminate\Support\Facades\Redis;
 use JWTAuth;
 use JWTFactory;
 class ClassRoutineController extends Controller
@@ -21,9 +23,31 @@ class ClassRoutineController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function all($id)
     {
-        //
+        $cachedClassRoutine = Redis::get('classRoutine'.$id);
+
+
+        if($cachedClassRoutine) {
+            $cachedClassRoutine = json_decode($cachedClassRoutine, FALSE);
+      
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Fetched from redis',
+                'data' => $cachedClassRoutine,
+            ]);
+        }else {
+            $classRoutine = School::find($id)->classRoutine()->orderBy('created_at', 'desc')->get();
+            Redis::set('classRoutine'.$id, $classRoutine);
+            Redis::expire('classRoutine'.$id,5);
+
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $classRoutine,
+            ]);
+        }
+
     }
 
     /**
@@ -42,25 +66,23 @@ class ClassRoutineController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$id)
     {
         $input = $request->only(
-            'teacher_name', 'id_no', 'gender', 'class'
-            , 'section', 'subject','date', 'time', 'phone', 'email'
+            'teacher_name', 'class'
+            , 'section', 'subject','date', 'time','email'
          );
     
                               
 
         $validator = Validator::make($input, [
             'teacher_name' => 'required',
-            'id_no' => 'required',
-            'gender' => 'required',
+           
             'class' => 'required',
             'section' => 'required',
             'subject' => 'required',
             'date' => 'required',
             'time' => 'required',
-            'phone' => 'required',
             'email' => 'required',
            
         ]);
@@ -69,31 +91,35 @@ class ClassRoutineController extends Controller
             return response()->json(["error"=>'fails']);
 
         }
-    //     $matchThese = ['email' => $request->email,
-    //     'roll' => $request->roll,
-    //     'phone' => $request->phone,
-    //     'admission_id' => $request->admission_id
+        $matchThese = ['email' => $request->email,
+        'class' => $request->class,
+        'section' => $request->section,
+        'date' => $request->date,
+        'time' => $request->time
 
        
-    //    ];
-    //    $found=Student::where($matchThese)->first();
-    //     if($found){
-    //         return response()->json(['success'=>false, 'message' => 'Email ,Roll,Phone,Admission_id Exists'],422);
+       ];
+       $found= School::find($id)->classRoutine()->where($matchThese)->first();
+        if($found){
+            return response()->json(['success'=>false, 'message' => 'Class assaigned'],422);
 
-    //     }
+        }
        
         try {
             DB::beginTransaction();
             
-            $ClassRoutine = ClassRoutine::create($input); // eloquent creation of data
-
+            $classRoutine = ClassRoutine::create($input); // eloquent creation of data
+            $school=School::find($id);
             
-            if (!$ClassRoutine) {
+            $school->classRoutine()->save($classRoutine);
+            $classRoutine->save();
+            
+            if (!$classRoutine) {
                 return response()->json(["error"=>"didnt work"],422);
             }
             
             DB::commit();   
-            return response()->json(["routine"=>$ClassRoutine]);
+            return response()->json(["data"=>$classRoutine]);
         }
             catch (\Exception $e) {
             DB::rollback();   

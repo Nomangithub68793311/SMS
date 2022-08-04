@@ -1,10 +1,14 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 use App\Models\Holiday;
 use Illuminate\Http\Request;
-
+use App\Models\School;
+use Illuminate\Support\Facades\Redis;
 class HolidayController extends Controller
 {
     /**
@@ -12,9 +16,30 @@ class HolidayController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function all($id)
     {
-        //
+        $cachedHoliday = Redis::get('holiday'.$id);
+
+
+        if($cachedHoliday) {
+            $cachedHoliday = json_decode($cachedHoliday, FALSE);
+      
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Fetched from redis',
+                'data' => $cachedHoliday,
+            ]);
+        }else {
+            $holiday = School::find($id)->holiday()->orderBy('created_at', 'desc')->get();
+            Redis::set('holiday'.$id, $holiday);
+            Redis::expire('holiday'.$id,5);
+
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $holiday,
+            ]);
+        }
     }
 
     /**
@@ -33,9 +58,58 @@ class HolidayController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$id)
     {
-        //
+        $input = $request->only(
+            'holiday_name', 'date'
+         );
+    
+                              
+
+        $validator = Validator::make($input, [
+            'holiday_name' => 'required',
+           
+            'date' => 'required',
+           
+           
+        ]);
+
+        if($validator->fails()){
+            return response()->json(["error"=>'fails']);
+
+        }
+        $matchThese = [
+        'date' => $request->date,
+
+       
+       ];
+       $found= School::find($id)->holiday()->where($matchThese)->first();
+        if($found){
+            return response()->json(['success'=>false, 'message' => 'holiday exists'],422);
+
+        }
+       
+        try {
+            DB::beginTransaction();
+            
+            $holiday = Holiday::create($input); // eloquent creation of data
+            $school=School::find($id);
+            
+            $school->holiday()->save($holiday);
+            $holiday->save();
+            
+            if (!$holiday) {
+                return response()->json(["error"=>"didnt work"],422);
+            }
+            
+            DB::commit();   
+            return response()->json(["data"=>$holiday]);
+        }
+            catch (\Exception $e) {
+            DB::rollback();   
+             
+        return response()->json(["error"=>"didnt work"],422);
+    }
     }
 
     /**
