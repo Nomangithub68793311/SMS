@@ -6,6 +6,9 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Notice;
 use Illuminate\Http\Request;
+use App\Models\School;
+use Illuminate\Support\Facades\Redis;
+
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -19,16 +22,36 @@ class NoticeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function all($id)
 
     {
-        $news = Notice::orderBy('created_at', 'desc')->get();
-        $newsorder = Notice::paginate(3);
+        // $newsorder = Notice::paginate(3);
 
         // $news = Notice::with(['title' => function($q){
         //     $q->take(3);
         // }])->get();
-        return response()->json(["notice"=> $news ]);
+        $cachedNotice = Redis::get('notice'.$id);
+
+
+        if($cachedNotice) {
+            $cachedNotice = json_decode($cachedNotice, FALSE);
+      
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Fetched from redis',
+                'data' => $cachedNotice,
+            ]);
+        }else {
+            $notice = School::find($id)->notice()->orderBy('created_at', 'desc')->get();
+            Redis::set('notice'.$id, $notice);
+            Redis::expire('notice'.$id,5);
+
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $notice,
+            ]);
+        }
 
     }
 
@@ -48,7 +71,7 @@ class NoticeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$id)
     {
           $input = $request->only(
             'title', 'posted_by', 'details', 'post_date'
@@ -71,7 +94,7 @@ class NoticeController extends Controller
         }
         $matchThese = ['title' => $request->title, 'details' => $request->details
                       ];
-        $found=Notice::where($matchThese )->first();
+        $found=School::find($id)->notice()->where($matchThese )->first();
         if($found){
             return response()->json(['success'=>false, 'message' => 'notice Exists'],422);
 
@@ -83,16 +106,20 @@ class NoticeController extends Controller
             DB::beginTransaction();
             
             // write your dependent quires here
-            $Notice = Notice::create($input); // eloquent creation of data
-
+            $notice = Notice::create($input); // eloquent creation of data
+            $school=School::find($id);
             
-            if (!$Notice) {
+            $school->notice()->save($notice);
+            $notice->save();
+            
+            
+            if (!$notice) {
                 return response()->json(["error"=>"didnt work"],422);
             }
             
             // Happy ending :)
             DB::commit();   
-            return response()->json(["Notice"=>$Notice]);
+            return response()->json(["data"=>$notice]);
         }
             catch (\Exception $e) {
             // May day,  rollback!!! rollback!!!

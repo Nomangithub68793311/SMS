@@ -30,6 +30,10 @@ return new class extends Migration
             $table->string('password');
             $table->integer('id_no');     
             $table->timestamps();
+            $table->foreign('school_id')
+            ->references('id')
+            ->on('schools')
+            ->onDelete('cascade');
         });
     }
 

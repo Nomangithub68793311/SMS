@@ -22,8 +22,12 @@ class Parentmodel extends Model
 
 
     ];
-    // public function adminSignup()
-    // {
-    //     return $this->belongsTo(AdminSignup::class);
-    // }
+    public function school()
+    {
+        return $this->belongsTo(School::class);
+    }
+    public function student()
+    {
+     return $this->hasMany(Student::class);
+    }
 }

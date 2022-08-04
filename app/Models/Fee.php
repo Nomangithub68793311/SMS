@@ -15,4 +15,8 @@ class Fee extends Model
         'class', 'section', 'fee_name', 'fee_amount'
         , 'fee_type', 'starts_from','finishes_at', 
     ];
+    public function school()
+    {
+     return $this->belongsTo(School::class);
+    }
 }

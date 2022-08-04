@@ -15,4 +15,8 @@ class Transport extends Model
         'route_name', 'vehicle_number', 'license_number'
         , 'phone_number', 'driver_name'
     ];
+    public function school()
+    {
+     return $this->belongsTo(School::class);
+    }
 }

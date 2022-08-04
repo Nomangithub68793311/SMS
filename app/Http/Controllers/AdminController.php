@@ -31,7 +31,7 @@ class AdminController extends Controller
      */
     public function all($id)
     {
-        // return response()->json(["id"=>$id]);
+        // return response()->json(["id"=>'fromcontroller'.$id]);
 
         $cachedInfo = Redis::hgetall('yes'.$id);
         // return response()->json(["get"=> 'yes'.$id ]);
@@ -42,49 +42,59 @@ class AdminController extends Controller
            
                 'message' => 'Fetched from redis',
                 'data' => $cachedInfo,
+                // 'id' => 'yes'.$id
             ]);
         }else{
 
         try {
             // begin transaction
             DB::beginTransaction();
-            
+        //    $school= School::find($id);
+        //    return response()->json(["school"=>$school]);
+
             // write your dependent quires here
-            $total_students = Student::count(); // eloquent creation of data
-            $total_male=Student::where('gender','male')->get()->count();
-            $total_female=Student::where('gender','female')->get()->count();
-            $total_teachers = Teacher::count();
-            $total_parents = Parentmodel::count();
-            $total_expenses =Expense::get()->sum("amount");
-            $total_parents = Parentmodel::count();
-            $total_earnings =Earning::get()->sum("amount");
+            $total_students = School::find($id)->student; // eloquent creation of data
+
+
+            $total_male=School::find($id)->student()->where('gender', 'male')->get();
+            $total_female=School::find($id)->student()->where('gender', 'female')->get();
+            $total_teachers = School::find($id)->teacher;
+            $total_parents = School::find($id)->parentmodel;
+            // $total_expenses =Expense::get()->sum("amount");
+            // $total_parents = Parentmodel::count();
+            // $total_earnings =Earning::get()->sum("amount");
         //    DB::table('notice')->orderBy('id')->chunk(3, function ($contacts) {
         //         foreach ($contacts as $contact) {
         //             echo $contacts;
         //         }
         //     });
-       $notice= Notice::orderBy('created_at', 'desc')->get();
+    //    $notice= Notice::orderBy('created_at', 'desc')->get();
             // $chunks = $notices->map(function($notice) {
             //     return $notice = $notice->values();
             //  });
             //  return $chunks;
             
-            if (!$total_students && !$total_earnings && !$notice && !$total_male &&  !$total_female && !$total_teachers && !$total_parents && !$total_expenses ) {
+            if (!$total_students && !$total_male &&  !$total_female && !$total_teachers && !$total_parents) {
                 return response()->json(["error"=>"not enough info"],422);
             }
+            // if (!$total_students && !$total_earnings && !$notice && !$total_male &&  !$total_female && !$total_teachers && !$total_parents && !$total_expenses ) {
+            //     return response()->json(["error"=>"not enough info"],422);
+            // }
             
     //        Happy ending :)
             DB::commit();  
         //    $all_keys= Redis::get('*'); 
             $data=[
-                "total_students"=>$total_students,
-                "total_male"=>$total_male,
-                "total_female"=>$total_female,
-                "total_teachers"=>$total_teachers,
-                "total_parents"=>$total_parents,
-                "total_expenses"=>$total_expenses,
-                "total_earnings"=>$total_earnings,
-                "notice"=> $notice,
+                "total_students"=>$total_students->count(),
+                "total_male"=>$total_male->count(),
+                "total_female"=>$total_female->count(),
+                "total_teachers"=>$total_teachers->count(),
+                "total_parents"=>$total_parents->count(),
+                // "id" => 'yes'.$id
+
+                // "total_expenses"=>$total_expenses,
+                // "total_earnings"=>$total_earnings,
+                // "notice"=> $notice,
             ];
 
             Redis::hmset('yes'.$id, $data);
@@ -184,7 +194,7 @@ class AdminController extends Controller
         // ->myCustomObject($account)
         ->make();
         $token = JWTAuth::encode($payload);
-            return response()->json(['success'=>true, 'token' => '1'. $token ,"id"=>$found->id]);
+            return response()->json(['success'=>true, 'token' => '1'.$token ,"id"=>$found->id]);
 
         }
         return response()->json(['success'=>false, 'message' => 'Email not found!'],422);

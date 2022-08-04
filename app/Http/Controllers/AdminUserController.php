@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\Models\School;
+use Illuminate\Support\Facades\Redis;
+
 use App\Models\AdminUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -21,9 +24,30 @@ class AdminUserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function all($id)
     {
-        //
+        $cachedAdminUser = Redis::get('cachedAdminUser'.$id);
+
+
+        if($cachedAdminUser) {
+            $cachedAdminUser = json_decode($cachedAdminUser, FALSE);
+      
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Fetched from redis',
+                'data' => $cachedAdminUser,
+            ]);
+        }else {
+            $adminUser = School::find($id)->adminUser;
+            Redis::set('cachedAdminUser'.$id, $adminUser);
+            Redis::expire('cachedAdminUser'.$id,5);
+
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $adminUser,
+            ]);
+        }
     }
 
     /**
@@ -52,8 +76,8 @@ return response()->json(["diff"=>$diff ]);
         ]);
         $matchThese = ['email' => $request->email];
       
-        $found=AdminUser::where($matchThese)->first();
-        if($found){
+        $user=AdminUser::where($matchThese)->first();
+        if($user){
             $date1 = Carbon::parse($found->payment_date);
             $now = Carbon::now();
             $diff = $date1->diffInDays($now);
@@ -67,7 +91,7 @@ return response()->json(["diff"=>$diff ]);
         // ->myCustomObject($account)
         ->make();
         $token = JWTAuth::encode($payload);
-            return response()->json(['success'=>true, 'token' =>  $token ]);
+            return response()->json(['success'=>true, 'token' =>  $token ,'id'=>$user->school_id]);
 
         }
         return response()->json(['success'=>false, 'message' => 'Email not found!'],422);
@@ -80,7 +104,7 @@ return response()->json(["diff"=>$diff ]);
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$id)
     {
         $input = $request->only('first_name', 'last_name','gender', 'date_of_birth',
         'fathers_name', 'religion', 'email','mothers_name', 'joining_date',
@@ -108,24 +132,31 @@ return response()->json(["diff"=>$diff ]);
             return response()->json(["error"=>'fails']);
 
         }
+        $matchTheseAdmin = ['institution_email' => $request->admin_email];
+      
+        $admin_found=School::where($matchThese)->first();
+        if(!$admin_found){
+            return response()->json(['success'=>false, 'message' => 'Only admin can add users'],422);
+
+        }
         $matchThese = ['email' => $request->email];
       
-        $found=AdminUser::where($matchThese)->first();
+        $found=School::find($id)->adminUser()->where($matchThese)->first();
         if($found){
             return response()->json(['success'=>false, 'message' => 'Email Exists'],422);
 
         }
-        $found_with__id=AdminUser::where('id_no','=',$request->id_no)->first();
+        $found_with__id=School::find($id)->adminUser()->where('id_no','=',$request->id_no)->first();
         if($found_with__id){
             return response()->json(['success'=>false, 'message' => 'id should not be matched'],422);
 
         }
-        $found_with_phone=AdminUser::where('phone','=',$request->phone)->first();
+        $found_with_phone=School::find($id)->adminUser()->where('phone','=',$request->phone)->first();
         if($found_with_phone){
             return response()->json(['success'=>false, 'message' => 'phone number should not be matched'],422);
 
         }
-        $total_users = AdminUser::count();
+        $total_users = School::find($id)->adminUser()->count();
         if($total_users > 4){
             return response()->json(["message"=>"User subscription limit execeeds"],422);
  
@@ -141,10 +172,13 @@ return response()->json(["diff"=>$diff ]);
         try {
             DB::beginTransaction();
             
-            $admin_user = AdminUser::create($input); // eloquent creation of data
-
+            $adminUser = AdminUser::create($input); // eloquent creation of data
+            $school=School::find($id);
             
-            if (!$admin_user) {
+            $school->adminUser()->save($adminUser);
+            $adminUser->save();
+            
+            if (!$adminUser) {
                 return response()->json(["error"=>"didnt work"],422);
             } 
             // $response = Http::post('http://127.0.0.1:8000/v1/event', [
@@ -152,7 +186,7 @@ return response()->json(["diff"=>$diff ]);
                 
             // ]);
             DB::commit();   
-            return  response()->json(["email"=>$admin_user->email]);
+            return  response()->json(["data"=>$adminUser->email]);
         }
             catch (\Exception $e) {
             DB::rollback();   
@@ -160,6 +194,8 @@ return response()->json(["diff"=>$diff ]);
         return response()->json(["error"=>"no process"],422);
     }
     }
+  
+   
 
     /**
      * Display the specified resource.

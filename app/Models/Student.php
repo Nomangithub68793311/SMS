@@ -29,8 +29,12 @@ class Student extends Model
         });
     }
 
-    // public function school()
-    // {
-    //     return $this->belongsTo(School::class);
-    // }
+    public function school()
+    {
+        return $this->belongsTo(School::class);
+    }
+    public function parentmodel()
+    {
+        return $this->belongsTo(Parentmodel::class);
+    }
 }

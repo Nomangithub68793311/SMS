@@ -13,12 +13,11 @@ class Notice extends Model
 
     protected $fillable=[
         'title', 'posted_by', 'details', 'post_date'
-       
-        
-
-
-
     ];
+    public function school()
+    {
+     return $this->belongsTo(School::class);
+    }
 
      	 	
 //     public function getCreatedAtAttribute($date)

@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Student;
+use App\Models\School;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -23,9 +25,30 @@ class EarningController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function all($id)
     {
-        //
+        $cachedEarning = Redis::get('earning'.$id);
+
+
+        if($cachedEarning) {
+            $cachedEarning = json_decode($cachedEarning, FALSE);
+      
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Fetched from redis',
+                'data' => $cachedEarning,
+            ]);
+        }else {
+            $earning = School::find($id)->earning()->orderBy('created_at', 'desc')->get();
+            Redis::set('earning'.$id, $earning);
+            Redis::expire('earning'.$id,5);
+
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $earning,
+            ]);
+        }
     }
 
     /**
@@ -44,7 +67,7 @@ class EarningController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$id)
     {
         $input = $request->only(
             'name', 'amount', 'type', 'date'
@@ -61,32 +84,31 @@ class EarningController extends Controller
         ]);
 
         if($validator->fails()){
-            return response()->json(["error"=>'fails']);
+            return response()->json(["error"=>'invalid data']);
 
         }
 
-    //     $matchThese = ['email' => $request->email,
-    //     'roll' => $request->roll,
-    //     'phone' => $request->phone,
-    //     'admission_id' => $request->admission_id
-    //    ];
-    //    $found=Earning::where($matchThese)->first();
-    //     if($found){
-    //         return response()->json(['success'=>false, 'message' => 'Email ,Roll,Phone,Admission_id Exists'],422);
-    //     }
+        $matchThese = ['name' => $request->name ];
+       $found=School::find($id)->earning()->where($matchThese)->first();
+        if($found){
+            return response()->json(['success'=>false, 'message' => 'Please change the name'],422);
+    }
       
         try {
             DB::beginTransaction();
             
-            $Earning = Earning::create($input); // eloquent creation of data
-
+            $earning = Earning::create($input); // eloquent creation of data
+            $school=School::find($id);
             
-            if (!$Earning) {
+            $school->earning()->save($earning);
+            $earning->save();
+            
+            if (!$earning) {
                 return response()->json(["error"=>"didnt work"],422);
             } 
             
             DB::commit();   
-            return response()->json(["Earning"=>$Earning]);
+            return response()->json(["data"=>$earning]);
         }
             catch (\Exception $e) {
             DB::rollback();   
@@ -103,8 +125,8 @@ class EarningController extends Controller
      */
     public function show(Earning $earning)
     {
-        $Earning=Earning::all();
-        return response()->json(['earning' => $Earning]);
+        // $Earning=Earning::all();
+        // return response()->json(['earning' => $Earning]);
     }
 
     /**

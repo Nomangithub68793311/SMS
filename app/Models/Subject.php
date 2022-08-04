@@ -16,4 +16,8 @@ class Subject extends Model
     protected $fillable=[
         'subject_name', 'subject_type', 'select_class', 'select_code'
     ];
+    public function school()
+    {
+     return $this->belongsTo(School::class);
+    }
 }

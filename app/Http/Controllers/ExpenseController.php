@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\JWTManager as JWT;
+use App\Models\School;
+use Illuminate\Support\Facades\Redis;
+
 use JWTAuth;
 use JWTFactory;
 class ExpenseController extends Controller
@@ -66,9 +69,9 @@ class ExpenseController extends Controller
             return response()->json(["error"=>'fails']);
 
         }
-        $found=Expense::where('id_no','=',$request->id_no)->first();
+        $found=School::find($id)->expense()->where('id_no','=',$request->id_no)->first();
         if($found){
-            return response()->json(['success'=>false, 'message' => 'Book Exists']);
+            return response()->json(['success'=>false, 'message' => 'expense Exists']);
 
         }
         
@@ -79,7 +82,10 @@ class ExpenseController extends Controller
             
             // write your dependent quires here
             $expense = Expense::create($input); // eloquent creation of data
-
+            $school=School::find($id);
+            
+            $school->expense()->save($expense);
+            $expense->save();
             
             if (!$expense) {
                 return response()->json(["error"=>"didnt work"],422);
@@ -87,7 +93,7 @@ class ExpenseController extends Controller
             
             // Happy ending :)
             DB::commit();   
-            return response()->json(["expense"=>$expense]);
+            return response()->json(["data"=>$expense]);
         }
             catch (\Exception $e) {
             // May day,  rollback!!! rollback!!!
@@ -104,10 +110,33 @@ class ExpenseController extends Controller
      * @param  \App\Models\Expense  $expense
      * @return \Illuminate\Http\Response
      */
-    public function show(Expense $expense)
+    public function all(Expense $expense,$id)
     {
-        $all_expenses = Expense::orderBy('created_at', 'desc')->get();
-        return response()->json(["all_expenses"=>$all_expenses]);
+        // $all_expenses = Expense::orderBy('created_at', 'desc')->get();
+        // return response()->json(["all_expenses"=>$all_expenses]);
+        $cachedExpense = Redis::get('expense'.$id);
+
+
+        if($cachedExpense) {
+            $cachedExpense = json_decode($cachedExpense, FALSE);
+      
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Fetched from redis',
+                'data' => $cachedExpense,
+            ]);
+        }else {
+            $expense = School::find($id)->expense()->orderBy('created_at', 'desc')->get();
+            Redis::set('expense'.$id, $expense);
+            Redis::expire('expense'.$id,5);
+
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $expense,
+            ]);
+        }
+
     }
 
     /**

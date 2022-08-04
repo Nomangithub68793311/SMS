@@ -5,7 +5,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Parentmodel;
 use App\Models\Student;
-
+use App\Models\School;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -23,9 +24,30 @@ class SalaryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function all($id)
     {
-        //
+        $cachedSalary = Redis::get('salary'.$id);
+
+
+        if($cachedSalary) {
+            $cachedSalary = json_decode($cachedSalary, FALSE);
+      
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Fetched from redis',
+                'data' => $cachedSalary,
+            ]);
+        }else {
+            $salary = School::find($id)->salary()->orderBy('created_at', 'desc')->get();
+            Redis::set('salary'.$id, $salary);
+            Redis::expire('salary'.$id,5);
+
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $salary,
+            ]);
+        }
     }
 
     /**
@@ -44,7 +66,7 @@ class SalaryController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$id)
     {
         $input = $request->only(
             'staff_id', 'name', 'gender', 'month'
@@ -65,11 +87,11 @@ class SalaryController extends Controller
         ]);
 
         if($validator->fails()){
-            return response()->json(["error"=>'fails']);
+            return response()->json(["error"=>'invalid data']);
 
         }
         $matchThese = ['staff_id' => $request->staff_id, 'email' => $request->email];
-        $found=Salary::where($matchThese )->first();
+        $found=School::find($id)->salary()->where($matchThese )->first();
         if($found){
             return response()->json(['success'=>false, 'message' => 'Added Already'],422);
 
@@ -81,16 +103,19 @@ class SalaryController extends Controller
             DB::beginTransaction();
             
             // write your dependent quires here
-            $Salary = Salary::create($input); // eloquent creation of data
-
+            $salary = Salary::create($input); // eloquent creation of data
+            $school=School::find($id);
             
-            if (!$Salary) {
+            $school->salary()->save($salary);
+            $salary->save();
+            
+            if (!$salary) {
                 return response()->json(["error"=>"didnt work"],422);
             }
             
             // Happy ending :)
             DB::commit();   
-            return response()->json(["Salary"=>$Salary]);
+            return response()->json(["data"=>$salary]);
         }
             catch (\Exception $e) {
             // May day,  rollback!!! rollback!!!
@@ -108,8 +133,8 @@ class SalaryController extends Controller
      */
     public function show(Salary $salary)
     {
-        $Salary = Salary::orderBy('created_at', 'desc')->get();
-        return response()->json(["salary"=>$Salary]);
+        // $Salary = Salary::orderBy('created_at', 'desc')->get();
+        // return response()->json(["salary"=>$Salary]);
     }
 
     /**

@@ -16,4 +16,8 @@ class Earning extends Model
     protected $fillable=[
         'name', 'amount', 'type', 'date'
     ];
+    public function school()
+    {
+     return $this->belongsTo(School::class);
+    }
 }

@@ -44,10 +44,17 @@ return new class extends Migration
 
 
             $table->timestamps();
-            // $table->uuid('school_id');
-            // $table->foreign('school_id')
-            // ->references('id')
-            // ->on('schools');
+            $table->uuid('school_id')->nullable(); 
+            $table->foreign('school_id')
+            ->references('id')
+            ->on('schools')
+            ->onDelete('cascade');
+
+            $table->uuid('parentmodel_id')->nullable(); 
+            $table->foreign('parentmodel_id')
+            ->references('id')
+            ->on('parentmodels')
+            ->onDelete('cascade');
         });
     }
 

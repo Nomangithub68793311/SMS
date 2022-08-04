@@ -24,6 +24,11 @@ return new class extends Migration
             $table->date("starts_from")->nullable(); 
             $table->date("finishes_at")->nullable(); 
             $table->timestamps();
+            $table->uuid('school_id')->nullable(); 
+            $table->foreign('school_id')
+            ->references('id')
+            ->on('schools')
+            ->onDelete('cascade');
         });
     }
 

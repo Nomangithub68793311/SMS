@@ -45,23 +45,24 @@ class StudentController extends Controller
         return response()->json(['success'=>true, 'message' => 'listening from linux ubuntu'],422);
 
     }
-    public function all()
+    public function all($id)
     {
-        $cachedBlog = Redis::get('new');
+        $cachedstu = Redis::get('student'.$id);
 
 
-        if(isset($cachedBlog)) {
-            $blog = json_decode($cachedBlog, FALSE);
+        if($cachedstu) {
+            $cachedstu = json_decode($cachedstu, FALSE);
       
             return response()->json([
-                'status_code' => 201,
+                'status_code' => 200,
                 'message' => 'Fetched from redis',
-                'data' => $blog,
+                'data' => $cachedstu,
             ]);
         }else {
-            $student = Student::all();
-            Redis::set('new', $student);
-      
+            $student = School::find($id)->student;
+            Redis::set('student'.$id, $student);
+            Redis::expire('student'.$id,5);
+
             return response()->json([
                 'status_code' => 201,
                 'message' => 'Fetched from database',
@@ -117,11 +118,12 @@ class StudentController extends Controller
         $matchThese = ['email' => $request->email];
       
         $found=Student::where($matchThese)->first();
+
         if($found){
             return response()->json(['success'=>false, 'message' => 'Email Exists'],422);
 
         }
-        $found_with_admission_id=Student::where('admission_id','=',$request->admission_id)->first();
+        $found_with_admission_id=School::find($id)->student()->where('admission_id','=',$request->admission_id)->first();
         if($found_with_admission_id){
             return response()->json(['success'=>false, 'message' => 'Admission id should not be matched'],422);
 
@@ -134,7 +136,7 @@ class StudentController extends Controller
         $matchThese = ['class' => $request->class,
         'section' => $request->section,
         'roll' => $request->roll];
-        $found_with_roll=Student::where($matchThese )->first();
+        $found_with_roll=School::find($id)->student()->where($matchThese )->first();
         if($found_with_roll){
             return response()->json(['success'=>false, 'message' => 'Can not have same class and section with same roll number'],422);
 
@@ -145,11 +147,11 @@ class StudentController extends Controller
         $input['hashedPassword'] = Hash::make($ranpass); 
         try {
             DB::beginTransaction();
-            // $school=School::find($id);
+            $school=School::find($id);
             
             $student = Student::create($input); // eloquent creation of data
-            // $school->student()->save($student);
-            // $student->save();
+            $school->student()->save($student);
+            $student->save();
             
             if (!$student) {
                 return response()->json(["error"=>"didnt work"],422);

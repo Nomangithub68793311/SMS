@@ -21,6 +21,11 @@ return new class extends Migration
             $table->integer('phone_number');
             $table->string('driver_name');
             $table->timestamps();
+            $table->uuid('school_id')->nullable(); 
+            $table->foreign('school_id')
+            ->references('id')
+            ->on('schools')
+            ->onDelete('cascade');
         });
     }
 

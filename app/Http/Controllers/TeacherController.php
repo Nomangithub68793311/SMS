@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use App\Models\School;
+use Illuminate\Support\Facades\Redis;
+
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -24,6 +26,32 @@ class TeacherController extends Controller
     {
         //
     }
+    public function all($id)
+    {
+        $cachedsteacher = Redis::get('teacher'.$id);
+
+
+        if($cachedsteacher) {
+            $cachedsteacher = json_decode($cachedsteacher, FALSE);
+      
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Fetched from redis',
+                'data' => $cachedsteacher,
+            ]);
+        }else {
+            $teacher = School::find($id)->teacher;
+            Redis::set('teacher'.$id, $teacher);
+            Redis::expire('teacher'.$id,5);
+
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $teacher,
+            ]);
+        }
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -41,7 +69,7 @@ class TeacherController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$id)
     {
         $input = $request->only('first_name', 'last_name','gender', 'date_of_birth', 'id_no',
         'blood_group', 'religion', 'email','class', 'section', 'admission_id',
@@ -70,13 +98,13 @@ class TeacherController extends Controller
 
         }
         $matchThese = ['email' => $request->email ];
-       $found=Teacher::where($matchThese)->first();
+       $found=School::find($id)->teacher()->where($matchThese)->first();
         if($found){
             return response()->json(['success'=>false, 'message' => 'Email Exists']);
 
         }
         $matchThese = ['id_no' => $request->id_no];
-       $found_wth_id=Teacher::where($matchThese)->first();
+       $found_wth_id=School::find($id)->teacher()->where($matchThese)->first();
         if($found_wth_id){
             return response()->json(['success'=>false, 'message' => 'Id_no Exists']);
 
@@ -84,7 +112,7 @@ class TeacherController extends Controller
         $matchThese = [
         'phone' => $request->phone
        ];
-       $found_with_phone=Teacher::where($matchThese)->first();
+       $found_with_phone=School::find($id)->teacher()->where($matchThese)->first();
         if($found_with_phone){
             return response()->json(['success'=>false, 'message' => 'Phone Exists']);
 
@@ -98,12 +126,12 @@ class TeacherController extends Controller
         try {
             // begin transaction
             DB::beginTransaction();
-            // $school=School::find($id);
+            $school=School::find($id);
             // write your dependent quires here
             $teacher = Teacher::create($input); // eloquent creation of data
 
-            // $school->teacher()->save($teacher);
-            // $teacher->save();
+            $school->teacher()->save($teacher);
+            $teacher->save();
             if (!$teacher) {
                 return response()->json(["error"=>"didnt work"],422);
             }

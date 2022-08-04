@@ -14,9 +14,9 @@ class Expense extends Model
     protected $fillable=[
         'name', 'id_no', 'expense_type', 'amount',"date",'phone'
        , 'email', 'status',
-        
-
-
-
     ];
+    public function school()
+    {
+     return $this->belongsTo(School::class);
+    }
 }

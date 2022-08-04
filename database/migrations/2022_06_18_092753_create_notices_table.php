@@ -20,6 +20,11 @@ return new class extends Migration
             $table->longText('details');
             $table->date("post_date")->nullable(); 
             $table->timestamps();
+            $table->uuid('school_id')->nullable(); 
+            $table->foreign('school_id')
+            ->references('id')
+            ->on('schools')
+            ->onDelete('cascade');
 
         });
     }

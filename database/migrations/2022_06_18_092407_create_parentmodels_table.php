@@ -19,14 +19,12 @@ return new class extends Migration
             $table->string('last_name');
             $table->string('gender');
             $table->date('date_of_birth')->nullable(); 
-            $table->integer('id_no');
             $table->string('occupation');
-            $table->string('student_email')->unique();
+            $table->string('student_email');
             $table->string('blood_group');
             $table->string('religion');
             $table->string('email');
-            $table->string('class');
-            $table->string('section');
+           
             $table->integer('phone');
             $table->string('address');
             $table->string('bio');
@@ -36,10 +34,11 @@ return new class extends Migration
           
 
             $table->timestamps();
-            // $table->uuid('admin_signup_id');
-            // $table->foreign('admin_signup_id')
-            // ->references('id')
-            // ->on('admin_signups');
+            $table->uuid('school_id')->nullable(); 
+            $table->foreign('school_id')
+            ->references('id')
+            ->on('schools')
+            ->onDelete('cascade');
         });
     }
 

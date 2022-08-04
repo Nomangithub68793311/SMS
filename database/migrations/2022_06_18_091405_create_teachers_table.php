@@ -34,10 +34,11 @@ return new class extends Migration
             
 
             $table->timestamps();
-            // $table->uuid('admin_signup_id');
-            // $table->foreign('admin_signup_id')
-            // ->references('id')
-            // ->on('admin_signups');
+            $table->uuid('school_id')->nullable(); 
+            $table->foreign('school_id')
+            ->references('id')
+            ->on('schools')
+            ->onDelete('cascade');
         });
     }
 

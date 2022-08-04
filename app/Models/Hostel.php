@@ -14,5 +14,9 @@ class Hostel extends Model
         'hostel_name', 'room_number', 'room_type'
         , 'num_of_bed', 'cost_per_bed'
     ];
+    public function school()
+    {
+     return $this->belongsTo(School::class);
+    }
 
 }

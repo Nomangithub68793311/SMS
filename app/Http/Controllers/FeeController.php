@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use App\Models\ClassRoutine;
+use App\Models\School;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -23,9 +25,30 @@ class FeeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function all($id)
     {
-        //
+        $cachedFee = Redis::get('fee'.$id);
+
+
+        if($cachedFee) {
+            $cachedFee = json_decode($cachedFee, FALSE);
+      
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Fetched from redis',
+                'data' => $cachedFee,
+            ]);
+        }else {
+            $fee = School::find($id)->fee()->orderBy('created_at', 'desc')->get();
+            Redis::set('fee'.$id, $fee);
+            Redis::expire('fee'.$id,5);
+
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $fee,
+            ]);
+        }
     }
 
     /**
@@ -44,7 +67,7 @@ class FeeController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$id)
     {
         $input = $request->only(
             'class', 'section', 'fee_name', 'fee_amount'
@@ -66,11 +89,11 @@ class FeeController extends Controller
         ]);
 
         if($validator->fails()){
-            return response()->json(["error"=>'fails']);
+            return response()->json(["error"=>'fails'],422);
 
         }
         $matchThese = ['fee_name' => $request->fee_name ];
-       $found=Fee::where($matchThese)->first();
+       $found=School::find($id)->fee()->where($matchThese)->first();
         if($found){
             return response()->json(['Already exists with same name'],422);
 
@@ -81,13 +104,16 @@ class FeeController extends Controller
             
             $fee = Fee::create($input); // eloquent creation of data
 
+            $school=School::find($id);
             
+            $school->fee()->save($fee);
+            $fee->save();
             if (!$fee) {
                 return response()->json(["error"=>"didnt work"],422);
             }
             
             DB::commit();   
-            return response()->json(["fee"=>$fee]);
+            return response()->json(["data"=>$fee]);
         }
             catch (\Exception $e) {
             DB::rollback();   
@@ -106,8 +132,8 @@ class FeeController extends Controller
 
 
     {
-        $all_fees = Fee::orderBy('created_at', 'desc')->get();
-        return response()->json(["all_fees"=>$all_fees]);
+        // $all_fees = Fee::orderBy('created_at', 'desc')->get();
+        // return response()->json(["all_fees"=>$all_fees]);
 
 
        

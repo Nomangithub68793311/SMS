@@ -15,5 +15,9 @@ class Salary extends Model
         'staff_id', 'name', 'gender', 'month'
         , 'amount', 'email'
     ];
+    public function school()
+    {
+     return $this->belongsTo(School::class);
+    }
 
 }

@@ -21,22 +21,61 @@ class School extends Model
         'logo','license_copy','payment_date','payment_status','login_permitted',
         'principal_name','institution_email','principal_email','total_students','hashedPassword','password'
     ];
-    // public function students()
-    // {
-    //     return $this->hasMany(Student::class);
-    // }
+    public function student()
+    {
+        return $this->hasMany(Student::class);
+    }
 
 
-// //     public function teachers()
-//     {
-//         return $this->hasMany(Teacher::class);
-//     }
+    public function teacher()
+    {
+        return $this->hasMany(Teacher::class);
+    }
+    
 
 
-//     public function parentmodels()
-//    {
-//     return $this->hasMany(Parentmodel::class);
-//    }
+    public function parentmodel()
+   {
+    return $this->hasMany(Parentmodel::class);
+   }
+   public function notice()
+   {
+    return $this->hasMany(Notice::class);
+   }
+   public function expense()
+   {
+    return $this->hasMany(Expense::class);
+   }
+   public function fee()
+   {
+    return $this->hasMany(Fee::class);
+   }
+   public function salary()
+   {
+    return $this->hasMany(Salary::class);
+   }
+   public function earning()
+   {
+    return $this->hasMany(Earning::class);
+   }
+   public function subject()
+   {
+    return $this->hasMany(Subject::class);
+   }
+   public function transport()
+   {
+    return $this->hasMany(Transport::class);
+   }
+   public function hostel()
+   {
+    return $this->hasMany(Hostel::class);
+   }
+   public function adminUser()
+   {
+    return $this->hasMany(AdminUser::class);
+   }
+    
+    
     
 
 }

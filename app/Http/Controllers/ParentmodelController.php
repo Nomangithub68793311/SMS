@@ -5,8 +5,10 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Parentmodel;
 use App\Models\Student;
-use App\Models\AdminSignup;
 use Illuminate\Http\Request;
+use App\Models\School;
+use Illuminate\Support\Facades\Redis;
+
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -26,6 +28,31 @@ class ParentmodelController extends Controller
         //
     }
 
+    public function all($id)
+    {
+        $cachedparent = Redis::get('parent'.$id);
+
+
+        if($cachedparent) {
+            $cachedparent = json_decode($cachedparent, FALSE);
+      
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Fetched from redis',
+                'data' => $cachedparent,
+            ]);
+        }else {
+            $parent = School::find($id)->parentmodel;
+            Redis::set('parent'.$id, $parent);
+            Redis::expire('parent'.$id,5);
+
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $parent,
+            ]);
+        }
+    }
     /**
      * Show the form for creating a new resource.
      *
@@ -42,7 +69,7 @@ class ParentmodelController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request ,$id)
     {
         $input = $request->only(  'first_name', 'last_name','gender', 'date_of_birth', 'id_no','occupation','student_email',
         'blood_group', 'religion', 'email','class', 'section',
@@ -72,17 +99,24 @@ class ParentmodelController extends Controller
             return response()->json(["error"=>'fails']);
 
         }
-        $matchThese = [
-        'id_no' => $request->id_no,
-        'student_email' => $request->student_email,
-        'class' => $request->class,
-        'section' => $request->section,
-       ];
-       $found=Parentmodel::where($matchThese)->first();
-        if($found){
-            return response()->json(['success'=>false, 'message' => 'Student email Exists'],422);
+      
+       $matchThese_stu = ['email' => $request->student_email];
+       $found_with_student_email=Student::where($matchThese_stu)->first();
+        if(!$found_with_student_email){
+            return response()->json(['success'=>false, 'message' => 'Student email should exists'],422);
 
         }
+        $matchThese = [
+            'id_no' => $request->id_no,
+            'student_email' => $request->student_email,
+            'class' => $request->class,
+            'section' => $request->section,
+           ];
+           $found=Parentmodel::where($matchThese)->first();
+           if($found){
+               return response()->json(['success'=>false, 'message' => 'Student  Exists'],422);
+    
+           }
         $ranpass=Str::random(12);
         $input['password'] =$ranpass;
         $input['hashedPassword'] = Hash::make($ranpass); 
@@ -91,11 +125,18 @@ class ParentmodelController extends Controller
         try {
             // begin transaction
             DB::beginTransaction();
-            $school=AdminSignup::find($id);
-            // write your dependent quires here
-            $parent = Parentmodel::create($input); // eloquent creation of data
+           
+            $parent = Parentmodel::create($input);
+             // adding to school
+             $school=School::find($id);
             $school->parentmodel()->save($parent);
             $parent->save();
+
+
+            //adding parent to student
+            $student=Student::where("email",'=',$parent->student_email)->first();
+            $parent->student()->save($student);
+            $student->save();
             
             if (!$parent) {
                 return response()->json(["error"=>"didnt work"],422);
@@ -103,7 +144,7 @@ class ParentmodelController extends Controller
             
             // Happy ending :)
             DB::commit();   
-            return response()->json(["parent"=>$parent]);
+            return response()->json(["data"=>$parent]);
         }
             catch (\Exception $e) {
             // May day,  rollback!!! rollback!!!

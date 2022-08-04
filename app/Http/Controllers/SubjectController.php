@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Subject;
 use Illuminate\Http\Request;
+use App\Models\School;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -19,9 +21,30 @@ class SubjectController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function all($id)
     {
-        //
+        $cachedSubject= Redis::get('subject'.$id);
+
+
+        if($cachedSubject) {
+            $cachedSubject = json_decode($cachedSubject, FALSE);
+      
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Fetched from redis',
+                'data' => $cachedSubject,
+            ]);
+        }else {
+            $subject = School::find($id)->subject()->orderBy('created_at', 'desc')->get();
+            Redis::set('subject'.$id, $subject);
+            Redis::expire('subject'.$id,5);
+
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $subject,
+            ]);
+        }
     }
 
     /**
@@ -40,7 +63,7 @@ class SubjectController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$id)
     {
         $input = $request->only(
             'subject_name', 'subject_type', 'select_class', 'select_code'
@@ -62,9 +85,14 @@ class SubjectController extends Controller
             return response()->json(["error"=>'fails']);
 
         }
-        $found=Subject::where('select_code','=',$request->select_code)->first();
+        $matchThese = [
+            'subject_name' => $request->subject_name,
+            'select_class' => $request->select_class,
+            'select_code' => $request->select_code,
+           ];
+        $found=School::find($id)->subject()->where( $matchThese)->first();
         if($found){
-            return response()->json(['success'=>false, 'message' => 'not possible to asaign in the same class']);
+            return response()->json(['success'=>false, 'message' => 'Not possible to asaign in the same class']);
 
         }
         
@@ -75,7 +103,10 @@ class SubjectController extends Controller
             
             // write your dependent quires here
             $subject = Subject::create($input); // eloquent creation of data
-
+            $school=School::find($id);
+            
+            $school->subject()->save($subject);
+            $subject->save();
             
             if (!$subject) {
                 return response()->json(["error"=>"didnt work"],422);
@@ -83,7 +114,7 @@ class SubjectController extends Controller
             
             // Happy ending :)
             DB::commit();   
-            return response()->json(["subject"=>$subject]);
+            return response()->json(["data"=>$subject]);
         }
             catch (\Exception $e) {
             // May day,  rollback!!! rollback!!!
@@ -102,8 +133,8 @@ class SubjectController extends Controller
      */
     public function show(Subject $subject)
     {
-        $Subject = Subject::orderBy('created_at', 'desc')->get();
-        return response()->json(["subject"=>$Subject]);
+        // $Subject = Subject::orderBy('created_at', 'desc')->get();
+        // return response()->json(["subject"=>$Subject]);
     }
 
     /**
