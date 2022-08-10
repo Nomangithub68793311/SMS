@@ -22,6 +22,11 @@ return new class extends Migration
             $table->string("select_section"); 
             $table->time('select_time')->default('00:00:00');
             $table->timestamps();
+            $table->uuid('school_id')->nullable(); 
+            $table->foreign('school_id')
+            ->references('id')
+            ->on('schools')
+            ->onDelete('cascade');
         });
     }
 

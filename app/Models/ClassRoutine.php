@@ -13,7 +13,7 @@ class ClassRoutine extends Model
     protected $dateFormat = 'Y-m-d H:i:s';
     protected $timeFormat = 'H:i:s';
     protected $fillable=[
-        'teacher_name', 'class'
+        'teacher_name', 'class','school_id'
         , 'section', 'subject','date', 'time', 'email'
     ];
     public function school()

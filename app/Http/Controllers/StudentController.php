@@ -82,6 +82,7 @@ class StudentController extends Controller
      {
          $input = $request->only('first_name', 'last_name','gender', 'date_of_birth', 'roll',
          'blood_group', 'religion', 'email','class', 'section', 'admission_id',
+        
          'phone','address','bio','testimonial','certificate','signature','marksheet','photo'
       );
      
@@ -229,6 +230,7 @@ class StudentController extends Controller
         $all=Student::all();
         return response()->json(['student' => $all]);
     }
+    
 
     /**
      * Show the form for editing the specified resource.

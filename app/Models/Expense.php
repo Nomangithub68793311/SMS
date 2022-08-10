@@ -13,7 +13,7 @@ class Expense extends Model
    
     protected $fillable=[
         'name', 'id_no', 'expense_type', 'amount',"date",'phone'
-       , 'email', 'status',
+       , 'email', 'status','school_id'
     ];
     public function school()
     {

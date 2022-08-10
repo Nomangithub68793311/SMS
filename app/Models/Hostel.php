@@ -12,7 +12,7 @@ class Hostel extends Model
     protected $dateFormat = 'Y-m-d H:i:s';
     protected $fillable=[
         'hostel_name', 'room_number', 'room_type'
-        , 'num_of_bed', 'cost_per_bed'
+        , 'num_of_bed', 'cost_per_bed','school_id'
     ];
     public function school()
     {

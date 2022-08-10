@@ -13,10 +13,10 @@ class Library extends Model
    
     protected $fillable=[
         'book_name', 'subject', 'writer_name', 'class'
-        ,'book_id', 'publish_date', 'upload_date',
-        
-
-
-
+        ,'book_id', 'publish_date', 'upload_date','school_id'
     ];
+    public function school()
+    {
+        return $this->belongsTo(School::class);
+    }
 }

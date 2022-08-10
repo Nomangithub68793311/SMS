@@ -12,7 +12,7 @@ class Notice extends Model
     protected $dateFormat = 'Y-m-d H:i:s';
 
     protected $fillable=[
-        'title', 'posted_by', 'details', 'post_date'
+        'title', 'posted_by', 'details', 'post_date','school_id'
     ];
     public function school()
     {

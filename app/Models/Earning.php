@@ -14,7 +14,7 @@ class Earning extends Model
     protected $timeFormat = 'H:i:s';
     protected $dateFormat = 'Y-m-d H:i:s';
     protected $fillable=[
-        'name', 'amount', 'type', 'date'
+        'name', 'amount', 'type', 'date','school_id'
     ];
     public function school()
     {

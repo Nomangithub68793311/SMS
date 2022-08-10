@@ -13,6 +13,10 @@ class Exam extends Model
     protected $dateFormat = 'Y-m-d H:i:s';
     protected $fillable=[
         'exam_name', 'select_date', 'subject_type', 'select_class'
-        , 'select_section', 'select_time'
+        , 'select_section', 'select_time','school_id'
     ];
+    public function school()
+    {
+     return $this->belongsTo(School::class);
+    }
 }

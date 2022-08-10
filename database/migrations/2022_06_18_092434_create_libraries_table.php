@@ -23,6 +23,11 @@ return new class extends Migration
             $table->date("publish_date")->nullable(); 
             $table->date("upload_date")->nullable(); 
             $table->timestamps();
+            $table->uuid('school_id')->nullable(); 
+            $table->foreign('school_id')
+            ->references('id')
+            ->on('schools')
+            ->onDelete('cascade');
         });
     }
 

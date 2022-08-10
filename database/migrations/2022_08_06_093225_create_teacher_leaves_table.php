@@ -13,13 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('hostels', function (Blueprint $table) {
+        Schema::create('teacher_leaves', function (Blueprint $table) {
             $table->uuid('id')->primary();           
-            $table->string('hostel_name');
-            $table->string('room_number');
-            $table->string('room_type');
-            $table->integer('num_of_bed');
-            $table->integer('cost_per_bed');
+            $table->string('leave_name');
+            $table->string('name');
+            $table->string('email');
+            $table->string('reason');
+            $table->integer('total_days');
+            $table->date("start_date")->nullable(); 
+            $table->date("finish_date")->nullable(); 
             $table->timestamps();
             $table->uuid('school_id')->nullable(); 
             $table->foreign('school_id')
@@ -36,6 +38,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('hostels');
+        Schema::dropIfExists('teacher_leaves');
     }
 };

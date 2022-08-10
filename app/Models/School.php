@@ -15,7 +15,7 @@ class School extends Model
         
     ];
     protected $fillable=[
-        'institution_name', 'address','gender', 'city',
+        'institution_name', 'address','gender', 'city','user_name','role',
         'zip_code', 'institution_type', 'institution_medium','country', 'category',
         'website','phone_no','mobile_no','principal_phone_no','establishment_year',
         'logo','license_copy','payment_date','payment_status','login_permitted',
@@ -80,9 +80,24 @@ class School extends Model
    }
    public function holiday()
    {
-    return $this->hasMany(Holiday::class);
+    return $this->hasMany(Holiday::class);  
    }
-    
+   public function library()
+   {
+    return $this->hasMany(Library::class);
+   }
+   public function teacherLeave()
+   {
+    return $this->hasMany(TeacherLeave::class);
+   }
+   public function exam()
+   {
+    return $this->hasMany(Exam::class);
+   }
+   public function payment()
+   {
+    return $this->hasMany(Payment::class);
+   }
     
     
 

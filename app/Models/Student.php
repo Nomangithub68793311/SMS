@@ -15,10 +15,10 @@ class Student extends Model
         
     ];
     protected $fillable=[
-        'first_name', 'last_name','gender', 'date_of_birth', 'roll',
+        'first_name', 'last_name','gender', 'date_of_birth', 'roll','parentmodel_id',
         'blood_group', 'religion', 'email','class', 'section', 'admission_id',
         'phone','address','bio','password','hashedPassword','admitted_year',
-        'testimonial','certificate','signature','marksheet','photo','admin_id'
+        'testimonial','certificate','signature','marksheet','photo','school_id'
 
 
     ];

@@ -13,7 +13,7 @@ class Salary extends Model
     protected $timeFormat = 'H:i:s';
     protected $fillable=[
         'staff_id', 'name', 'gender', 'month'
-        , 'amount', 'email'
+        , 'amount', 'email','school_id'
     ];
     public function school()
     {

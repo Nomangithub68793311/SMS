@@ -14,7 +14,7 @@ class Subject extends Model
 
    
     protected $fillable=[
-        'subject_name', 'subject_type', 'select_class', 'select_code'
+        'subject_name', 'subject_type', 'select_class', 'select_code','school_id'
     ];
     public function school()
     {

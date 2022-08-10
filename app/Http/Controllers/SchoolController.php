@@ -22,9 +22,10 @@ class SchoolController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function all()
     {
-        //
+        return response()->json(['success'=> "hello" ]);
+
     }
 
     /**
@@ -46,12 +47,13 @@ class SchoolController extends Controller
     public function store(Request $request)
     {
         $input = $request->only(
-            'institution_name', 'address', 'city','total_students',
+            'institution_name', 'address', 'city','total_students','user_name',
             'zip_code', 'institution_type', 'institution_medium','country', 'category',
             'website','phone_no','mobile_no','principal_phone_no','establishment_year',
             'logo','license_copy', 'principal_name','institution_email','principal_email'
      );
     
+
                    
 
         $validator = Validator::make($input, [
@@ -64,8 +66,8 @@ class SchoolController extends Controller
             'category' => 'required',
             'address' => 'required',
             'phone_no' => 'required',
+            'user_name' => 'required',
             'mobile_no' => 'required',
-
             'establishment_year' => 'required',
             'principal_email' => 'required',
             'principal_name' => 'required',
@@ -137,6 +139,9 @@ class SchoolController extends Controller
     }
     }
 
+//////permission to log in to super admin
+
+
     public function permission(Request $request)
 {
     $input = $request->only(
@@ -180,7 +185,7 @@ $matchThese = ['institution_email' => $request->email];
     {
         //
     }
-    public function all()
+    public function yes()
     {
       $all=  School::all();
       if($all){

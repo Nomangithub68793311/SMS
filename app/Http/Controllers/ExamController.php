@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\Exam;
 use Illuminate\Http\Request;
+use App\Models\School;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -19,9 +21,31 @@ class ExamController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function all($id)
     {
-        //
+        
+        $cachedExam= Redis::get('exam'.$id);
+
+
+        if($cachedExam) {
+            $cachedExam = json_decode($cachedExam, FALSE);
+      
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Fetched from redis',
+                'data' => $cachedExam,
+            ]);
+        }else {
+            $exam = School::find($id)->exam()->orderBy('created_at', 'desc')->get();
+            Redis::set('exam'.$id, $exam);
+            Redis::expire('exam'.$id,5);
+
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $exam,
+            ]);
+        }
     }
 
     /**
@@ -40,7 +64,7 @@ class ExamController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$id)
     {
         $input = $request->only(
             'exam_name', 'select_date', 'subject_type', 'select_class'
@@ -66,7 +90,7 @@ class ExamController extends Controller
         $matchThese = ['select_date' => $request->select_date, 'select_time' => $request->select_time,
                      'select_section' => $request->select_section, 'exam_name' => $request->exam_name,
                      'select_class' => $request->select_class ];
-        $found=Exam::where($matchThese )->first();
+        $found=School::find($id)->exam()->where($matchThese )->first();
         if($found){
             return response()->json(['success'=>false, 'message' => 'Exam Exists'],422);
 
@@ -78,16 +102,19 @@ class ExamController extends Controller
             DB::beginTransaction();
             
             // write your dependent quires here
-            $Exam = Exam::create($input); // eloquent creation of data
-
+            $exam = Exam::create($input); // eloquent creation of data
+            $school=School::find($id);
             
-            if (!$Exam) {
+            $school->exam()->save($exam);
+            $exam->save();
+            
+            if (!$exam) {
                 return response()->json(["error"=>"didnt work"],422);
             }
             
             // Happy ending :)
             DB::commit();   
-            return response()->json(["Exam"=>$Exam]);
+            return response()->json(["data"=>$exam]);
         }
             catch (\Exception $e) {
             // May day,  rollback!!! rollback!!!

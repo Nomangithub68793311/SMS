@@ -13,7 +13,7 @@ class Transport extends Model
     protected $dateFormat = 'Y-m-d H:i:s';
     protected $fillable=[
         'route_name', 'vehicle_number', 'license_number'
-        , 'phone_number', 'driver_name'
+        , 'phone_number', 'driver_name','school_id'
     ];
     public function school()
     {

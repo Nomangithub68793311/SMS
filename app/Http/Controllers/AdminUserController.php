@@ -106,9 +106,9 @@ return response()->json(["diff"=>$diff ]);
      */
     public function store(Request $request,$id)
     {
-        $input = $request->only('first_name', 'last_name','gender', 'date_of_birth',
-        'fathers_name', 'religion', 'email','mothers_name', 'joining_date',
-        'phone','address','id_no'
+        $input = $request->only( 'first_name', 'last_name', 
+        'gender','user_name',
+        'joining_date', 'email','phone',  'admin_email'
      );
     
                    
@@ -116,16 +116,13 @@ return response()->json(["diff"=>$diff ]);
         $validator = Validator::make($input, [
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required',
             'gender' => 'required',
-            'fathers_name' => 'required',
-            'religion' => 'required',
-            'phone' => 'required',
-            'address' => 'required',
-            'date_of_birth' => 'required',
+            'user_name' => 'required',
             'joining_date' => 'required',
-            'mothers_name' => 'required',
-            'id_no' => 'required'
+            'phone' => 'required',
+            'email' => 'required',
+            'admin_email' => 'required',
+            
         ]);
 
         if($validator->fails()){
@@ -146,18 +143,14 @@ return response()->json(["diff"=>$diff ]);
             return response()->json(['success'=>false, 'message' => 'Email Exists'],422);
 
         }
-        $found_with__id=School::find($id)->adminUser()->where('id_no','=',$request->id_no)->first();
-        if($found_with__id){
-            return response()->json(['success'=>false, 'message' => 'id should not be matched'],422);
-
-        }
+      
         $found_with_phone=School::find($id)->adminUser()->where('phone','=',$request->phone)->first();
         if($found_with_phone){
             return response()->json(['success'=>false, 'message' => 'phone number should not be matched'],422);
 
         }
         $total_users = School::find($id)->adminUser()->count();
-        if($total_users > 4){
+        if($total_users > 3){
             return response()->json(["message"=>"User subscription limit execeeds"],422);
  
         }

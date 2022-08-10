@@ -12,7 +12,7 @@ class Holiday extends Model
     protected $dateFormat = 'Y-m-d H:i:s';
    
     protected $fillable=[
-        'holiday_name', 'date'
+        'holiday_name', 'date','school_id'
     ];
     public function school()
     {

@@ -13,19 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('hostels', function (Blueprint $table) {
-            $table->uuid('id')->primary();           
-            $table->string('hostel_name');
-            $table->string('room_number');
-            $table->string('room_type');
-            $table->integer('num_of_bed');
-            $table->integer('cost_per_bed');
-            $table->timestamps();
+        Schema::create('payments', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->integer('amount');
+            $table->date("payment_date")->nullable(); 
             $table->uuid('school_id')->nullable(); 
             $table->foreign('school_id')
             ->references('id')
             ->on('schools')
             ->onDelete('cascade');
+            $table->timestamps();
         });
     }
 
@@ -36,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('hostels');
+        Schema::dropIfExists('payments');
     }
 };
