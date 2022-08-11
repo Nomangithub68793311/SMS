@@ -97,16 +97,17 @@ class TeacherController extends Controller
             return response()->json(["error"=>'fails']);
 
         }
+
         $matchThese = ['email' => $request->email ];
        $found=School::find($id)->teacher()->where($matchThese)->first();
         if($found){
-            return response()->json(['success'=>false, 'message' => 'Email Exists']);
+            return response()->json(['success'=>false, 'message' => 'Email Exists'],422);
 
         }
         $matchThese = ['id_no' => $request->id_no];
        $found_wth_id=School::find($id)->teacher()->where($matchThese)->first();
         if($found_wth_id){
-            return response()->json(['success'=>false, 'message' => 'Id_no Exists']);
+            return response()->json(['success'=>false, 'message' => 'Id_no Exists'],422);
 
         }
         $matchThese = [
@@ -114,7 +115,7 @@ class TeacherController extends Controller
        ];
        $found_with_phone=School::find($id)->teacher()->where($matchThese)->first();
         if($found_with_phone){
-            return response()->json(['success'=>false, 'message' => 'Phone Exists']);
+            return response()->json(['success'=>false, 'message' => 'Phone Exists'],422);
 
         }
        
@@ -138,7 +139,7 @@ class TeacherController extends Controller
             
             // Happy ending :)
             DB::commit();   
-            return response()->json(["Teacher"=>$teacher->email,"pass"=>$teacher->password]);
+            return response()->json(["data"=>$teacher]);
         }
             catch (\Exception $e) {
             // May day,  rollback!!! rollback!!!
@@ -235,8 +236,9 @@ class TeacherController extends Controller
      * @param  \App\Models\Teacher  $teacher
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Teacher $teacher)
+    public function data( $id)
     {
-        //
+        return response()->json(['success' => $id]);
+
     }
 }

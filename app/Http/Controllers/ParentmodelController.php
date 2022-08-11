@@ -232,8 +232,9 @@ class ParentmodelController extends Controller
      * @param  \App\Models\Parentmodel  $parentmodel
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Parentmodel $parentmodel)
+    public function data( $id)
     {
-        //
+        return response()->json(['success' => $id]);
+
     }
 }

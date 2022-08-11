@@ -107,8 +107,8 @@ return response()->json(["diff"=>$diff ]);
     public function store(Request $request,$id)
     {
         $input = $request->only( 'first_name', 'last_name', 
-        'gender','user_name',
-        'joining_date', 'email','phone',  'admin_email'
+        'gender','user_name','address',
+        'joining_date', 'email','phone',  
      );
     
                    
@@ -121,7 +121,7 @@ return response()->json(["diff"=>$diff ]);
             'joining_date' => 'required',
             'phone' => 'required',
             'email' => 'required',
-            'admin_email' => 'required',
+            'address' => 'required',
             
         ]);
 
@@ -129,11 +129,16 @@ return response()->json(["diff"=>$diff ]);
             return response()->json(["error"=>'fails']);
 
         }
-        $matchTheseAdmin = ['institution_email' => $request->admin_email];
+        $matchTheseSuperAdmin = ['id' => $id];
       
-        $admin_found=School::where($matchThese)->first();
-        if(!$admin_found){
-            return response()->json(['success'=>false, 'message' => 'Only admin can add users'],422);
+        $super_admin_found=School::where($matchTheseSuperAdmin)->first();
+        if(!$super_admin_found){
+            return response()->json(['success'=>false, 'message' => 'Only super admin can add users'],422);
+
+        }
+        $found_user_name=AdminUser::where('user_name','=', $request->user_name)->first();
+        if($found_user_name){
+            return response()->json(['success'=>false, 'message' => 'User name Exists'],422);
 
         }
         $matchThese = ['email' => $request->email];
@@ -150,7 +155,7 @@ return response()->json(["diff"=>$diff ]);
 
         }
         $total_users = School::find($id)->adminUser()->count();
-        if($total_users > 3){
+        if($total_users > 2){
             return response()->json(["message"=>"User subscription limit execeeds"],422);
  
         }

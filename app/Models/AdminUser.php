@@ -17,7 +17,7 @@ class AdminUser extends Model
     protected $fillable=[
         'first_name', 'last_name', 'gender','user_name','role',
         'zip_code', 'hashedPassword', 'password','joining_date', 
-        'email','phone','school_id',
+        'email','phone','school_id','address'
        
 
 

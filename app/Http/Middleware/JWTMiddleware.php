@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Closure;
 use App\Models\School;
+use App\Models\AdminUser;
 
 use App\Models\Account;
 use Illuminate\Http\Request;
@@ -27,7 +28,12 @@ class JWTMiddleware
     
     try {
                 $id= $request->id;
-                // return response()->json(['id' => $id]);
+                // return response()->json(['id' => "hello". $id]);
+
+                if(!$id){
+                return response()->json(['error' => 'id needed'],422);
+
+                }
 
                 $token = $request->bearerToken();
                 if(!$token ){
@@ -42,6 +48,14 @@ class JWTMiddleware
                 if($id==$jwtPayload->sub){
                     $user= School::find($jwtPayload->sub);
                     if (!$user) {
+                        $admin= AdminUser::find($jwtPayload->sub);
+                        if(!$admin){
+                            return response()->json(['message' => 'admin not found'], 422);
+
+                        }
+                        return $next($request);
+
+
                         return response()->json(['message' => 'user not found'], 422);
                     }
                     // return response()->json(['message' => $id]);

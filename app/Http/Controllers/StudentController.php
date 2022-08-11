@@ -47,6 +47,8 @@ class StudentController extends Controller
     }
     public function all($id)
     {
+        // return response()->json(["SUDD"=>'fails']);
+
         $cachedstu = Redis::get('student'.$id);
 
 
@@ -56,7 +58,7 @@ class StudentController extends Controller
             return response()->json([
                 'status_code' => 200,
                 'message' => 'Fetched from redis',
-                'data' => $cachedstu,
+                'data' => $cachedstu
             ]);
         }else {
             $student = School::find($id)->student;
@@ -216,7 +218,7 @@ class StudentController extends Controller
             ->make();
 
         $token = JWTAuth::encode($payload);
-            return response()->json(['success'=>true, 'token' => '1'.$token]);
+            return response()->json(['success'=>true, 'token' => '1'.$token,'id'=>$found->id]);
 
         }
         return response()->json(['success'=>false, 'message' => 'Email not found!'],422);
@@ -261,8 +263,9 @@ class StudentController extends Controller
      * @param  \App\Models\Student  $student
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Student $student)
+    public function data( $id)
     {
-        //
+        return response()->json(['success' => $id]);
+
     }
 }

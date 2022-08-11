@@ -159,7 +159,10 @@ $matchThese = ['institution_email' => $request->email];
       
         $found_with_institution_email=School::where($matchThese)->first();
         if($found_with_institution_email){
+             if($found_with_institution_email->password){
+                return response()->json(['success'=>"from data", 'email' =>  $found_with_institution_email->institution_email,"password"=> $found_with_institution_email->password]);
 
+             }
             $ranpass=Str::random(12);
             $found_with_institution_email->password=$ranpass;
             $found_with_institution_email->hashedPassword=Hash::make($ranpass);
@@ -167,7 +170,7 @@ $matchThese = ['institution_email' => $request->email];
             $found_with_institution_email->payment_status=true;
            
             $found_with_institution_email->save();
-            return response()->json(['success'=>true, 'email' =>  $found_with_institution_email->institution_email,"password"=> $found_with_institution_email->password]);
+            return response()->json(['success'=>"created", 'email' =>  $found_with_institution_email->institution_email,"password"=> $found_with_institution_email->password]);
 
         }
         return response()->json(['success'=>false, 'message' => "Email does not exist"],422);

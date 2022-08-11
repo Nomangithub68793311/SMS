@@ -31,32 +31,47 @@ class AdminController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+
+
+    public function showme($id)
+    {
+        return response()->json([
+           
+        'message' => 'Fetched from redis',
+        'data' => "show me",
+    ]);
+      
+    }
+
     public function all($id)
     {   
 
-        // return response()->json([
-           
-        //     'message' => 'Fetched from redis',
-        //     'data' => $id,
-        // ]);
-
-        ////checking id is school or not
+  
 
         $school=School::find($id);
-        // return response()->json(["data"=> $school]);
+////checking id is school or not
 
-       if($school){
-        $cachedInfo = Redis::hgetall('school'.$id);
-
-        if($cachedInfo) {
+        if($school){
+         $cachedInfo = Redis::hgetall('school'.$id);
+///if cache exists
+            if($cachedInfo) {
+                  $newData=array();
       
-            return response()->json([
+               foreach ($cachedInfo as $key => $value) {
+                  if($key == "institution_name" &&  "logo" &&  "role" && "user_name"){
+                $newData[$key]=json_decode($value, TRUE);
+                                                    }
+                                $newData[$key]=json_decode($value, FALSE);
            
-                'message' => 'Fetched from redis',
-                'data' => $cachedInfo,
-            ]);
-        }else{
-
+            }
+                    return response()->json([
+                
+                        'message' =>'Fetched from redis',
+                        'data' =>$newData
+                    ]);
+        }
+///if cache does not exists
         try {
             // begin transaction
             DB::beginTransaction();
@@ -77,7 +92,7 @@ class AdminController extends Controller
         //             echo $contacts;
         //         }
         //     });
-       $notice= School::find($id)->notice()->orderBy('created_at', 'desc')->get();
+       $notice= School::find($id)->notice;
             // $chunks = $notices->map(function($notice) {
             //     return $notice = $notice->values();
             //  });
@@ -101,15 +116,16 @@ class AdminController extends Controller
                 "total_parents"=>$total_parents->count(),
                 "total_expenses"=>$total_expenses,
                 "total_earnings"=>$total_earnings,
-                "notice"=> $notice,
-                'institution_name'=>$school->institution_name,
-            'user_name'=>$school->user_name,
-            'role'=>$school->role,
-            'logo'=>$school->logo
+                "from"=>'super admin',
+                "notice"=>$notice,
+                "institution_name"=>$school->institution_name,
+                "user_name"=>$school->user_name,
+                "role"=>$school->role,
+               "logo"=>$school->logo
             ];
 
             Redis::hmset('school'.$id, $data);
-            Redis::expire('school'.$id,5);
+            Redis::expire('school'.$id,20);
             return response()->json([
                 "data"=>$data,
                 "message" => 'Fetched from database',
@@ -117,30 +133,44 @@ class AdminController extends Controller
             
             ]);
         }
-            catch (\Exception $e) {
-            // May day,  rollback!!! rollback!!!
-            DB::rollback();   
-             
-        return response()->json(["error"=>"not work again"],422);
-            }
-         }
+                    catch (\Exception $e) {
+                    // May day,  rollback!!! rollback!!!
+                       DB::rollback();      
+                       return response()->json(["error"=>"not work again"],422);
+                    }
+         
         }
 ////checking id is admin_user or not
 
-        $admin_user=AdminUser::find($id);
-        if($admin_user){
-            $school=School::where('id' ,'=',$admin_user->school_id);
-            if( $school){
-                $cachedInfo = Redis::hgetall('admin'.$id);
+    $admin_user=AdminUser::find($id);
 
-        if($cachedInfo) {
+        if($admin_user){
+          $school=School::find($admin_user->school_id);
+        //  return response()->json(["data"=>$id]);
+
+            if($school){
+                $cachedInfo = Redis::hgetall('admin'.$id);
+///if cache exists
+              if($cachedInfo) {
       
-            return response()->json([
-           
-                'message' => 'Fetched from redis',
-                'data' => $cachedInfo,
-            ]);
-        }else{
+                $newData=array();
+      
+                    foreach ($cachedInfo as $key => $value) {
+                        if(is_string($key)){
+                            $newData[$key]=$value;
+                        }
+                        $newData[$key]=json_decode($value, FALSE);
+                        }
+            
+                    return response()->json([
+                
+                        'message' => 'Fetched from redis',
+                        'data' => $newData,
+                    ]);
+
+                       }
+        
+    ///if cache does not exists
 
         try {
             // begin transaction
@@ -162,7 +192,7 @@ class AdminController extends Controller
         //             echo $contacts;
         //         }
         //     });
-       $notice= School::find($school->id)->notice()->orderBy('created_at', 'desc')->get();
+            $notice= School::find($school->id)->notice()->orderBy('created_at', 'desc')->get();
             // $chunks = $notices->map(function($notice) {
             //     return $notice = $notice->values();
             //  });
@@ -185,12 +215,13 @@ class AdminController extends Controller
                 "total_teachers"=>$total_teachers->count(),
                 "total_parents"=>$total_parents->count(),
                 "total_expenses"=>$total_expenses,
+                "from"=>'admin',
                 "total_earnings"=>$total_earnings,
                 "notice"=> $notice,
-                'institution_name'=>$$school->institution_name,
-            'user_name'=>$$school->user_name,
-            'role'=>$admin_user->role,
-            'logo'=>$school->logo
+                'institution_name'=>$school->institution_name,
+                'user_name'=>$admin_user->user_name,
+                'role'=>$admin_user->role,
+                'logo'=>$school->logo
 
             ];
 
@@ -210,11 +241,11 @@ class AdminController extends Controller
         return response()->json(["error"=>"not work again"],422);
             }
          }
-            }
+            
         }
 
         return response()->json(["error"=>"not work again"],422);
-
+    
     }
 
     /**
@@ -285,6 +316,7 @@ class AdminController extends Controller
             return response()->json(['success'=>true, 
             'token' => '1'.$token ,
             "id"=>$found_super_admin->id,
+            "from"=>"super admin",
             'institution_name'=>$found_super_admin->institution_name,
             'user_name'=>$found_super_admin->user_name,
             'role'=>$found_super_admin->role
@@ -319,6 +351,7 @@ class AdminController extends Controller
         $token = JWTAuth::encode($payload);
             return response()->json(['success'=>true, 
             'token' => '1'.$token ,
+            "from"=>"admin",
             "id"=>$found_admin->id,
             'institution_name'=>$school->institution_name,
             'user_name'=>$found_admin->user_name,
