@@ -71,8 +71,10 @@ class ParentmodelController extends Controller
      */
     public function store(Request $request ,$id)
     {
-        $input = $request->only(  'first_name', 'last_name','gender', 'date_of_birth', 'id_no','occupation','student_email',
-        'blood_group', 'religion', 'email','class', 'section',
+
+        $input = $request->only(  'first_name', 'last_name','gender', 
+        'date_of_birth','occupation','student_email',
+        'blood_group', 'religion', 'email',
         'phone','address','bio');
     
                               
@@ -82,13 +84,10 @@ class ParentmodelController extends Controller
             'last_name' => 'required',
             'email' => 'required',
             'gender' => 'required',
-            'id_no' => 'required',
             'blood_group' => 'required',
             'religion' => 'required',
             'occupation' => 'required',
             'student_email' => 'required',
-            'class' => 'required',
-            'section' => 'required',
             'phone' => 'required',
             'bio' => 'required',
             'address' => 'required',
@@ -99,18 +98,18 @@ class ParentmodelController extends Controller
             return response()->json(["error"=>'fails']);
 
         }
-      
+
+
        $matchThese_stu = ['email' => $request->student_email];
        $found_with_student_email=Student::where($matchThese_stu)->first();
         if(!$found_with_student_email){
             return response()->json(['success'=>false, 'message' => 'Student email should exists'],422);
 
         }
+
         $matchThese = [
-            'id_no' => $request->id_no,
             'student_email' => $request->student_email,
-            'class' => $request->class,
-            'section' => $request->section,
+            
            ];
            $found=Parentmodel::where($matchThese)->first();
            if($found){
@@ -133,11 +132,11 @@ class ParentmodelController extends Controller
             $parent->save();
 
 
-            //adding parent to student
+            // adding parent to student
             $student=Student::where("email",'=',$parent->student_email)->first();
             $parent->student()->save($student);
             $student->save();
-            
+            $parent->save();
             if (!$parent) {
                 return response()->json(["error"=>"didnt work"],422);
             }

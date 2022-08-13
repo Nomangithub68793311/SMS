@@ -28,7 +28,7 @@ class JWTMiddleware
     
     try {
                 $id= $request->id;
-                // return response()->json(['id' => "hello". $id]);
+                // return response()->json(['data' => "hello". $id]);
 
                 if(!$id){
                 return response()->json(['error' => 'id needed'],422);

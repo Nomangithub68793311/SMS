@@ -25,6 +25,8 @@ class ClassRoutineController extends Controller
      */
     public function all($id)
     {
+        // return response()->json(["data"=>'yes']);
+
         $cachedClassRoutine = Redis::get('classRoutine'.$id);
 
 

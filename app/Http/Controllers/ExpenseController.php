@@ -45,7 +45,7 @@ class ExpenseController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request,$id)
     {
         $input = $request->only('name', 'id_no', 'expense_type', 'amount',"date",'phone'
         , 'email', 'status',
@@ -110,7 +110,7 @@ class ExpenseController extends Controller
      * @param  \App\Models\Expense  $expense
      * @return \Illuminate\Http\Response
      */
-    public function all(Expense $expense,$id)
+    public function all($id)
     {
         // $all_expenses = Expense::orderBy('created_at', 'desc')->get();
         // return response()->json(["all_expenses"=>$all_expenses]);

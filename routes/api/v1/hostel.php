@@ -2,6 +2,6 @@
 <?php
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HostelController; 
-Route::post('/hostel/add',[HostelController::class,'store']);
-Route::get('/hostel/all',[HostelController::class,'show']);
+use App\Http\Controllers\HostelController;
+Route::post('/hostel/add/{id}',[HostelController::class,'store'])->middleware('jwt.verify');
+Route::get('/hostel/all/{id}',[HostelController::class,'all'])->middleware('jwt.verify');

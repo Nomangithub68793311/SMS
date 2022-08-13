@@ -125,7 +125,7 @@ class AdminController extends Controller
             ];
 
             Redis::hmset('school'.$id, $data);
-            Redis::expire('school'.$id,20);
+            Redis::expire('school'.$id,0);
             return response()->json([
                 "data"=>$data,
                 "message" => 'Fetched from database',
@@ -226,7 +226,7 @@ class AdminController extends Controller
             ];
 
             Redis::hmset('admin'.$id, $data);
-            Redis::expire('admin'.$id,5);
+            Redis::expire('admin'.$id,0);
             return response()->json([
                 "data"=>$data,
                 "message" => 'Fetched from database',
