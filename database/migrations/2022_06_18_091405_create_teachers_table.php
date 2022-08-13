@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('hashedPassword');
             $table->string('password');
 
+            $table->string('role')->default('teacher'); 
             
 
             $table->timestamps();

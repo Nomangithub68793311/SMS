@@ -26,7 +26,8 @@ return new class extends Migration
             $table->string('class');
             $table->string('section');
             $table->integer('admission_id');
-            
+            $table->string('role')->default('student'); 
+
             $table->string('testimonial');
             $table->string('certificate');    
             $table->string('signature');

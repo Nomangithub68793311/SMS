@@ -36,9 +36,40 @@ class StudentController extends Controller
      *
      * @return \Illuminate\Http\Response check
      */
-    public function create()
+    public function personalData($id)
     {
-        //
+        
+        $cachedstuper = Redis::get('studentper'.$id);
+
+
+        if($cachedstuper) {
+            $cachedstuper = json_decode($cachedstuper, FALSE);
+      
+            return response()->json([
+                'status_code' => 200,
+                'message' => 'Fetched from redis',
+                'data' => $cachedstuper
+            ]);
+        }else {
+           $student= Student::find($id);
+            $school = School::where('id','=',$student->school_id)->first();
+            
+            $data=[
+               
+               "image"=>$student->photo,
+                "institution_name"=>$school->institution_name,
+                "user_name"=>$student->first_name .$student->last_name ,
+                "role"=>$student->role,
+               "logo"=>$school->logo
+            ];
+            Redis::set('studentper'.$id, $data);
+            Redis::expire('studentper'.$id,5);
+            return response()->json([
+                'status_code' => 201,
+                'message' => 'Fetched from database',
+                'data' => $data,
+            ]);
+        }
     }
     public function check()
     {

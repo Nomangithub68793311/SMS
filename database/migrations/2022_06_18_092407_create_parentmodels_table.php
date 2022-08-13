@@ -31,7 +31,8 @@ return new class extends Migration
             $table->string('hashedPassword');
             $table->string('password');
 
-          
+            $table->string('role')->default('parent'); 
+
 
             $table->timestamps();
             $table->uuid('school_id')->nullable(); 
