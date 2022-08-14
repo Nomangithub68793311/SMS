@@ -15,7 +15,7 @@ class School extends Model
         
     ];
     protected $fillable=[
-        'institution_name', 'address','gender', 'city','user_name','role',
+        'institution_name', 'address','gender', 'city','user_name','role','identity_id',
         'zip_code', 'institution_type', 'institution_medium','country', 'category',
         'website','phone_no','mobile_no','principal_phone_no','establishment_year',
         'logo','license_copy','payment_date','payment_status','login_permitted',

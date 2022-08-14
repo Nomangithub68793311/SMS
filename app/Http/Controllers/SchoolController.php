@@ -82,6 +82,8 @@ class SchoolController extends Controller
             return response()->json(["error"=>'fails'],422);
 
         }
+        return response()->json(["error"=>'fails'],422);
+
         $matchThese = ['institution_email' => $request->institution_email];
       
         $found_with_institution_email=School::where($matchThese)->first();
@@ -162,7 +164,10 @@ $matchThese = ['institution_email' => $request->email];
         $found_with_institution_email=School::where($matchThese)->first();
         if($found_with_institution_email){
              if($found_with_institution_email->password){
-                return response()->json(['success'=>"from data", 'email' =>  $found_with_institution_email->institution_email,"password"=> $found_with_institution_email->password]);
+                return response()->json(['success'=>"paawors already set ", 'email' =>  $found_with_institution_email->institution_email,
+                "password"=> $found_with_institution_email->password,
+                'identity_id'=> $found_with_institution_email->identity_id
+            ]);
 
              }
             $ranpass=Str::random(12);
@@ -170,10 +175,18 @@ $matchThese = ['institution_email' => $request->email];
             $found_with_institution_email->hashedPassword=Hash::make($ranpass);
             $found_with_institution_email->login_permitted=true;
             $found_with_institution_email->payment_status=true;
+            $found=School::where('identity_id','=',$request->identity_id)->first();
+            if($found){
+                return response()->json(['success'=>"false", 'message'=>"identity id found! try a new one"],422);
+  
+            }
             $found_with_institution_email->identity_id=$request->identity_id;
 
             $found_with_institution_email->save();
-            return response()->json(['success'=>"created", 'email' =>  $found_with_institution_email->institution_email,"password"=> $found_with_institution_email->password]);
+            return response()->json(['success'=>"created", 'email' =>  $found_with_institution_email->institution_email,
+            "password"=> $found_with_institution_email->password,
+            'identity_id'=> $found_with_institution_email->identity_id
+        ]);
 
         }
         return response()->json(['success'=>false, 'message' => "Email does not exist"],422);
