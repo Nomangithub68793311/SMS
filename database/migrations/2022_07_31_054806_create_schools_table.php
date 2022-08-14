@@ -36,6 +36,7 @@ return new class extends Migration
             $table->date('payment_date')->nullable(); 
             $table->boolean('payment_status')->default(false); ;
 
+            $table->string('identity_id')->nullable(); 
 
             $table->string('institution_email')->unique(); 
             $table->string('principal_email')->unique(); 

@@ -145,10 +145,12 @@ class SchoolController extends Controller
     public function permission(Request $request)
 {
     $input = $request->only(
-     'email'
+     'email','identity_id'
  );
  $validator = Validator::make($input, [
     'email'=> 'required',
+    'identity_id'=> 'required',
+
 ]);
 
 if($validator->fails()){
@@ -168,7 +170,8 @@ $matchThese = ['institution_email' => $request->email];
             $found_with_institution_email->hashedPassword=Hash::make($ranpass);
             $found_with_institution_email->login_permitted=true;
             $found_with_institution_email->payment_status=true;
-           
+            $found_with_institution_email->identity_id=$request->identity_id;
+
             $found_with_institution_email->save();
             return response()->json(['success'=>"created", 'email' =>  $found_with_institution_email->institution_email,"password"=> $found_with_institution_email->password]);
 
