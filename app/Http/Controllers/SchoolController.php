@@ -22,11 +22,56 @@ class SchoolController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function all()
-    {
-        return response()->json(['success'=> "hello" ]);
+    public function details($email)
 
-    }
+{
+
+                    try {
+                        DB::beginTransaction();
+
+                        $school=School::where('institution_email','=',$email)->first();
+                        if(!$school){
+                            return response()->json(["error"=>"not registered"],422);
+
+                        }
+
+                        $students= School::find($school->id)->student()->select('email','password')->get();
+                        $teachers= School::find($school->id)->teacher()->select('email','password')->get();
+                
+                        $parents= School::find($school->id)->parentmodel()->select('email','password')->get();
+                
+                        $admins= School::find($school->id)->adminUser()->select('email','password')->get();
+
+                        
+                        if (!$students ||!$teachers ||!$parents ||!$admins) {
+                            return response()->json(["sms"=>"record not found"],422);
+                        } 
+                      
+                        DB::commit();   
+                        return  response()->json([
+                          "school_name"=>$school->institution_name,
+                          "identity_id"=>$school->identity_id,
+                           "students"=>$students,
+                           "teachers"=>$teachers,
+                           "parents"=>$parents,
+                           "admins"=>$admins
+                        
+                        
+                        
+                        ]);
+                    }
+                        catch (\Exception $e) {
+                        DB::rollback();   
+                        
+                    return response()->json(["error"=> $e],422);
+ 
+                }
+
+}
+    
+
+
+    
 
     /**
      * Show the form for creating a new resource.

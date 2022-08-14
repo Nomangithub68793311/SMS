@@ -11,7 +11,7 @@ class Parentmodel extends Model
     use HasFactory;
     protected $dateFormat = 'Y-m-d H:i:s';
     protected $hidden = [
-        'password','hashedPassword'
+      'hashedPassword'
         
     ];
     protected $fillable=[
