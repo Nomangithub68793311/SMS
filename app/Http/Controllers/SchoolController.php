@@ -59,6 +59,7 @@ class SchoolController extends Controller
                         
                         
                         ]);
+
                     }
                         catch (\Exception $e) {
                         DB::rollback();   
@@ -93,8 +94,11 @@ class SchoolController extends Controller
     {
         $input = $request->only(
             'institution_name', 'address', 'city','total_students','user_name',
+
             'zip_code', 'institution_type', 'institution_medium','country', 'category',
+
             'website','phone_no','mobile_no','principal_phone_no','establishment_year',
+
             'logo','license_copy', 'principal_name','institution_email','principal_email'
      );
     
@@ -103,31 +107,41 @@ class SchoolController extends Controller
 
         $validator = Validator::make($input, [
             'institution_name' => 'required',
+
             'institution_type' => 'required',
+
             'city' => 'required',
+
             'zip_code' => 'required',
             'institution_medium' => 'required',
             'country' => 'required',
+
             'category' => 'required',
+
             'address' => 'required',
+
             'phone_no' => 'required',
+
             'user_name' => 'required',
+
             'mobile_no' => 'required',
             'establishment_year' => 'required',
+
             'principal_email' => 'required',
             'principal_name' => 'required',
             'institution_email' => 'required',
             'principal_phone_no' => 'required',
+
             'total_students' => 'required',
+
             'logo' => 'required',
             'license_copy' => 'required'
         ]);
 
         if($validator->fails()){
-            return response()->json(["error"=>'fails'],422);
+            return response()->json(["error"=>'fails this time'],422);
 
         }
-        return response()->json(["error"=>'fails'],422);
 
         $matchThese = ['institution_email' => $request->institution_email];
       
