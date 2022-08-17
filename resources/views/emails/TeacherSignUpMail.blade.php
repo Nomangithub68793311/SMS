@@ -9,11 +9,10 @@
      
      </head>
      <body style="font-family: 'Roboto', sans-serif !important;background-color: #333;">
-     <p  style="text-align: center;">{{$institution_name}} </p>
-
+         <p  style="text-align: center;">{{$institution_name}} </p>
          <table style="margin:0 auto; padding:0; cellpadding:0; cellspacing:0; background-color: #ffffff; width: 600px; height: auto;text-align: center; ">
              <tr>
-             <td style="text-align: center;">
+                 <td style="text-align: center;">
                  {{$logo}}
                  </td>
              </tr>

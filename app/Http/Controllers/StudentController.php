@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use  App\Jobs\StudentEmailJob;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
@@ -149,6 +149,7 @@ class StudentController extends Controller
             return response()->json(["error"=>'fails']);
 
         }
+        
         $matchThese = ['email' => $request->email];
       
         $found=Student::where($matchThese)->first();
@@ -195,12 +196,15 @@ class StudentController extends Controller
                 
             // ]);
             DB::commit();   
-            return  response()->json(["email"=>$student->email,"pass"=>$student->password]);
+            $job=(new StudentEmailJob( $student->email,$student->password, $school->institution_name,$school->logo,))
+            ->delay(Carbon::now()->addSeconds(5));
+            dispatch( $job);
+            return  response()->json(["success"=>"true"]);
         }
             catch (\Exception $e) {
             DB::rollback();   
              
-        return response()->json(["error"=>"no process"],422);
+        return response()->json(["error"=>"no process error!"],422);
     }
         // $payload = JWTFactory::sub($student->id)
         // ->myCustomObject($account)
@@ -216,44 +220,63 @@ class StudentController extends Controller
      */
     public function login(Request $request)
     {
-        $input = $request->only('email', 'password');
+       
+        $input = $request->only('email', 'password','identity_id');
         $validator = Validator::make($input, [
-        
+            'identity_id' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8'
         ]);
         if($validator->fails()){
-            return response()->json(["error"=>'email or password fail'],422);
-
+            return response()->json(["error"=>'email or password or identity_id fails'],422);
+    
         }
         $matchThese = ['email' => $request->email];
-      
-        $found=Student::where($matchThese)->first();
-        if($found){
-            // $date1 = Carbon::parse($found->payment_date);
-            // $now = Carbon::now();
-            // $diff = $date1->diffInDays($now);
-            // if($diff >30){
-            //     return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
-            // }
-            if (!Hash::check($request->password, $found->hashedPassword)) {
-                return response()->json(['success'=>false, 'message' => 'Login Fail, please check password'],422);
-             }
-       
-        // $customClaims = ['foo' => 'bar', 'baz' => 'bob'];
-
-
-            $payload = JWTFactory::sub($found->id)
-            // ->myCustomObject($customClaims)
-            // ->prv(env('JWT_SECRET_PRV'))
-            ->make();
-
-        $token = JWTAuth::encode($payload);
-            return response()->json(['success'=>true, 'token' => '1'.$token,'id'=>$found->id]);
-
+        $student=Student::where($matchThese)->first();
+        if(!$student){
+            return response()->json(["error"=>'Email not found'],422);
+    
         }
-        return response()->json(['success'=>false, 'message' => 'Email not found!'],422);
-
+        $school=School::where('identity_id','=',  $request->identity_id)->first();
+        if(!$school){
+            return response()->json(["error"=>'Wrong institution code'],422);
+    
+        }
+        $school_from_student=School::where('id','=',  $student->school_id)->first();
+    
+       if( $school == $school_from_student){
+    
+           
+               // $date1 = Carbon::parse($found->payment_date);
+               // $now = Carbon::now();
+               // $diff = $date1->diffInDays($now);
+               // if($diff >30){
+               //     return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
+               // }
+               if (!Hash::check($request->password, $student->hashedPassword)) {
+                   return response()->json(['success'=>false, 'message' => 'Login Fail, please check password'],422);
+                }
+                // $school=School::where('id','=',$found_admin->school_id)->first();
+    
+    
+                $payload = JWTFactory::sub($student->id)
+           // ->myCustomObject($account)
+           ->make();
+           $token = JWTAuth::encode($payload);
+               return response()->json(['success'=>true, 
+               'token' => '1'.$token ,
+               "id"=>$student->id,
+               'institution_name'=>$school->institution_name,
+               'user_name'=>$student->first_name . $student->last_name,
+               'role'=>$student->role,        
+           ]);
+    
+           }
+        
+     
+        
+        return response()->json(['success'=>false, 'message' =>"Admin is not in the particular institution"],422);
+    
     }
 
     public function show(Student $student)

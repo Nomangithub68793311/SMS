@@ -16,11 +16,17 @@ class StudentSignUpMail extends Mailable
      *
      * @return void
      */
-    public function __construct()
+    public $email;
+    public $password;
+    public $institution_name;
+    public $logo;
+    public function __construct($email,$password,$institution_name,$logo)
     {
-        //
+       $this->email=$email;
+       $this->password=$password;
+       $this->institution_name=$institution_name;
+       $this->logo=$logo;
     }
-
     /**
      * Build the message.
      *
@@ -28,6 +34,6 @@ class StudentSignUpMail extends Mailable
      */
     public function build()
     {
-        return $this->view('view.name');
+        return $this->view('emails.StudentSignUpMail');
     }
 }

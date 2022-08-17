@@ -27,44 +27,68 @@ class JWTMiddleware
     
     
     try {
-                $id= $request->id;
-                // return response()->json(['data' => "hello". $id]);
+        $id= $request->id;
+    
+        // return response()->json(['data' => "hello". $method]);
 
-                if(!$id){
-                return response()->json(['error' => 'id needed'],422);
+        if(!$id){
+        return response()->json(['error' => 'id needed'],422);
+
+        }
+
+        $token = $request->bearerToken();
+        if(!$token ){
+            return response()->json(['message' => 'Authorization failed'], 422);
+
+        }
+        $tokenParts = explode(".", $token);  
+        $tokenHeader = base64_decode($tokenParts[0]);
+        $tokenPayload = base64_decode($tokenParts[1]);
+        $jwtHeader = json_decode($tokenHeader);
+        $jwtPayload = json_decode($tokenPayload);
+        if($id==$jwtPayload->sub){
+            $user= School::find($jwtPayload->sub);
+              if (!$user) {
+
+                $admin= AdminUser::find($jwtPayload->sub);
+              
+                if(!$admin){
+                    return response()->json(['message' => 'admin not found'], 422);
 
                 }
-
-                $token = $request->bearerToken();
-                if(!$token ){
-                    return response()->json(['message' => 'Authorization failed'], 422);
-
-                }
-                $tokenParts = explode(".", $token);  
-                $tokenHeader = base64_decode($tokenParts[0]);
-                $tokenPayload = base64_decode($tokenParts[1]);
-                $jwtHeader = json_decode($tokenHeader);
-                $jwtPayload = json_decode($tokenPayload);
-                if($id==$jwtPayload->sub){
-                    $user= School::find($jwtPayload->sub);
-                    if (!$user) {
-                        $admin= AdminUser::find($jwtPayload->sub);
-                        if(!$admin){
-                            return response()->json(['message' => 'admin not found'], 422);
-
-                        }
-                        return $next($request);
-
-
-                        return response()->json(['message' => 'user not found'], 422);
-                    }
-                    // return response()->json(['message' => $id]);
-
+                  if ($admin && $request->method()=='POST'){
+                    $school=School::find($admin->school_id);
+                   
+                    $request->route()->setParameter('id',  $school->id);
                     return $next($request);
-                }
-                return response()->json(['message' => 'Something wrong'], 422); 
+                   }
+                   if ($admin && $request->method()=='GET'){
+                    $school=School::find($admin->school_id);
+                   
+                    $request->route()->setParameter('id',  $school->id);
+                    return $next($request);
+                    
 
+                   }   
+                return $next($request);
+
+            
+
+                return response()->json(['message' => 'user not found'], 422);
+              
+                
+                /////user finishes
              }
+
+            return $next($request);
+        }
+        return response()->json(['message' => 'Something wrong'], 422);    
+
+    }
+
+
+///try finishes
+
                 catch (Exception $e) {
                 
                     return response()->json(['message' => 'invalid data'], 422);
@@ -74,7 +98,7 @@ class JWTMiddleware
              
             
            
-}
+}  
     
 
 

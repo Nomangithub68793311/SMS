@@ -5,6 +5,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use App\Models\School;
 use Illuminate\Support\Facades\Redis;
+use  App\Jobs\AdminEmailJob;
 
 use App\Models\AdminUser;
 use Illuminate\Http\Request;
@@ -183,7 +184,10 @@ return response()->json(["diff"=>$diff ]);
             //     "email"=>$student->email
                 
             // ]);
-            DB::commit();   
+            DB::commit(); 
+            $job=(new AdminEmailJob( $adminUser->email,$adminUser->password,  $school->institution_name,$school->logo))
+            ->delay(Carbon::now()->addSeconds(5));
+            dispatch( $job);  
             return  response()->json(["data"=>$adminUser->email]);
         }
             catch (\Exception $e) {

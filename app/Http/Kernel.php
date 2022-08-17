@@ -68,10 +68,11 @@ class Kernel extends HttpKernel
         'jwt.verify'=> \App\Http\Middleware\JWTMiddleware::class,
         'jwt.parent'=> \App\Http\Middleware\JWTParentMiddleware::class,
         'jwt.student'=> \App\Http\Middleware\JWTStudentMiddleware::class,
+        'jwt.admin'=> \App\Http\Middleware\JWTAdminMiddleware::class,
 
         'jwt.teacher'=> \App\Http\Middleware\JWTTeacherMiddleware::class,
 
-
+        
 
     ];
 }

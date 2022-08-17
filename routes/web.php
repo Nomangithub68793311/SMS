@@ -15,5 +15,9 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', function () {
-    return ('welcome');
+    if (Request::isMethod('get')){
+        return ('get');
+
+    }
+    return ('not get');
 });

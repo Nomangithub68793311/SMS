@@ -34,21 +34,10 @@ class AdminController extends Controller
 
 
 
-    public function showme($id)
-    {
-        return response()->json([
-           
-        'message' => 'Fetched from redis',
-        'data' => "show me",
-    ]);
-      
-    }
-
-    public function all($id)
-    {   
-
   
 
+    public function forSuperAdmin($id)
+    {   
         $school=School::find($id);
 ////checking id is school or not
 
@@ -140,9 +129,18 @@ class AdminController extends Controller
                     }
          
         }
+
+        return response()->json(["error"=>"not work again"],422);
+    
+    }
+
+    public function forAdmin($id)
+    {   
 ////checking id is admin_user or not
 
     $admin_user=AdminUser::find($id);
+   
+
 
         if($admin_user){
           $school=School::find($admin_user->school_id);
@@ -206,7 +204,7 @@ class AdminController extends Controller
             }
             
     //        Happy ending :)
-            DB::commit();  
+            DB::commit();   
         //    $all_keys= Redis::get('*'); 
             $data=[
                 "total_students"=>$total_students->count(),
@@ -238,7 +236,7 @@ class AdminController extends Controller
             // May day,  rollback!!! rollback!!!
             DB::rollback();   
              
-        return response()->json(["error"=>"not work again"],422);
+        return response()->json(["error"=>$e],422);
             }
          }
             
@@ -248,15 +246,7 @@ class AdminController extends Controller
     
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
+  
 
     /**
      * Store a newly created resource in storage.
@@ -281,7 +271,7 @@ class AdminController extends Controller
     }
 
     
-    public function login(Request $request)
+    public function superAdminlogin(Request $request)
     {
         $input = $request->only('email', 'password');
         $validator = Validator::make($input, [
@@ -326,43 +316,74 @@ class AdminController extends Controller
       
         
         
-        // admin login
-        $matchThese = ['email' => $request->email];
-
-        $found_admin=AdminUser::where($matchThese)->first();
-
-
-        if($found_admin){
-            // $date1 = Carbon::parse($found->payment_date);
-            // $now = Carbon::now();
-            // $diff = $date1->diffInDays($now);
-            // if($diff >30){
-            //     return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
-            // }
-            if (!Hash::check($request->password, $found_admin->hashedPassword)) {
-                return response()->json(['success'=>false, 'message' => 'Login Fail, please check password'],422);
-             }
-             $school=School::where('id','=',$found_admin->school_id)->first();
-
-
-             $payload = JWTFactory::sub($found_admin->id)
-        // ->myCustomObject($account)
-        ->make();
-        $token = JWTAuth::encode($payload);
-            return response()->json(['success'=>true, 
-            'token' => '1'.$token ,
-            "from"=>"admin",
-            "id"=>$found_admin->id,
-            'institution_name'=>$school->institution_name,
-            'user_name'=>$found_admin->user_name,
-            'role'=>$found_admin->role,        
-        ]);
-
-        }
+     
         
         return response()->json(['success'=>false, 'message' =>"Email not found"],422);
 
     }
+///////////////////////
+public function adminlogin(Request $request)
+{ $input = $request->only('email', 'password','identity_id');
+    $validator = Validator::make($input, [
+        'identity_id' => 'required',
+        'email' => 'required|email|unique:users',
+        'password' => 'required|min:8'
+    ]);
+    if($validator->fails()){
+        return response()->json(["error"=>'email or password or identity_id fails'],422);
+
+    }
+    $matchThese = ['email' => $request->email];
+    $found_admin=AdminUser::where($matchThese)->first();
+    if(!$found_admin){
+        return response()->json(["error"=>'Email not found'],422);
+
+    }
+    $school=School::where('identity_id','=',  $request->identity_id)->first();
+    if(!$school){
+        return response()->json(["error"=>'Wrong institution code'],422);
+
+    }
+    $school_from_admin=School::where('id','=',  $found_admin->school_id)->first();
+
+   if( $school == $school_from_admin){
+
+       
+           // $date1 = Carbon::parse($found->payment_date);
+           // $now = Carbon::now();
+           // $diff = $date1->diffInDays($now);
+           // if($diff >30){
+           //     return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
+           // }
+           if (!Hash::check($request->password, $found_admin->hashedPassword)) {
+               return response()->json(['success'=>false, 'message' => 'Login Fail, please check password'],422);
+            }
+            // $school=School::where('id','=',$found_admin->school_id)->first();
+
+
+            $payload = JWTFactory::sub($found_admin->id)
+       // ->myCustomObject($account)
+       ->make();
+       $token = JWTAuth::encode($payload);
+           return response()->json(['success'=>true, 
+           'token' => '1'.$token ,
+           "from"=>"admin",
+           "id"=>$found_admin->id,
+           'institution_name'=>$school->institution_name,
+           'user_name'=>$found_admin->user_name,
+           'role'=>$found_admin->role,        
+       ]);
+
+       }
+    
+ 
+    
+    return response()->json(['success'=>false, 'message' =>"Admin is not in the particular institution"],422);
+
+}
+
+
+    
 
     /**
      * Show the form for editing the specified resource.

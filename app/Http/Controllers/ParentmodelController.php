@@ -8,6 +8,7 @@ use App\Models\Student;
 use Illuminate\Http\Request;
 use App\Models\School;
 use Illuminate\Support\Facades\Redis;
+use Carbon\Carbon;
 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -16,6 +17,8 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\JWTManager as JWT;
 use JWTAuth;
 use JWTFactory;
+use  App\Jobs\ParentEmailJob;
+
 class ParentmodelController extends Controller
 {
     /**
@@ -140,10 +143,14 @@ class ParentmodelController extends Controller
             if (!$parent) {
                 return response()->json(["error"=>"didnt work"],422);
             }
+          
             
             // Happy ending :)
             DB::commit();   
-            return response()->json(["data"=>$parent]);
+            $job=(new ParentEmailJob( $parent->email,$parent->password,  $school->institution_name,$school->logo,))
+            ->delay(Carbon::now()->addSeconds(5));
+            dispatch( $job);
+            return response()->json(["data"=>"true "]);
         }
             catch (\Exception $e) {
             // May day,  rollback!!! rollback!!!
@@ -161,39 +168,61 @@ class ParentmodelController extends Controller
      */
     public function login(Request $request)
     {
-        $input = $request->only('email', 'password');
+        $input = $request->only('email', 'password','identity_id');
         $validator = Validator::make($input, [
-        
+            'identity_id' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:8'
         ]);
         if($validator->fails()){
-            return response()->json(["error"=>"email or password fail"],422);
-
+            return response()->json(["error"=>'email or password or identity_id fails'],422);
+    
         }
         $matchThese = ['email' => $request->email];
-      
-        $found=Parentmodel::where($matchThese)->first();
-        if($found){
-            // $date1 = Carbon::parse($found->payment_date);
-            // $now = Carbon::now();
-            // $diff = $date1->diffInDays($now);
-            // if($diff >30){
-            //     return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
-            // }
-            if (!Hash::check($request->password, $found->hashedPassword)) {
-                return response()->json(['success'=>false, 'message' => 'Login Fail, please check password'],422);
-             }
-             $payload = JWTFactory::sub($found->id)
-             // ->myCustomObject($customClaims)
-             // ->prv(env('JWT_SECRET_PRV'))
-             ->make();
- 
-         $token = JWTAuth::encode($payload);
-             return response()->json(['success'=>true, 'token' => '1'.$token]);
-
+        $parent=Parentmodel::where($matchThese)->first();
+        if(!$parent){
+            return response()->json(["error"=>'Email not found'],422);
+    
         }
-        return response()->json(['success'=>false, 'message' => 'Email not found!'],422);
+        $school=School::where('identity_id','=',  $request->identity_id)->first();
+        if(!$school){
+            return response()->json(["error"=>'Wrong institution code'],422);
+    
+        }
+        $school_from_parent=School::where('id','=',  $parent->school_id)->first();
+    
+       if( $school == $school_from_parent){
+    
+           
+               // $date1 = Carbon::parse($found->payment_date);
+               // $now = Carbon::now();
+               // $diff = $date1->diffInDays($now);
+               // if($diff >30){
+               //     return response()->json(["success"=>$false,"message"=>"you need to pay minthly fee" ]);
+               // }
+               if (!Hash::check($request->password, $parent->hashedPassword)) {
+                   return response()->json(['success'=>false, 'message' => 'Login Fail, please check password'],422);
+                }
+                // $school=School::where('id','=',$found_admin->school_id)->first();
+    
+    
+                $payload = JWTFactory::sub($parent->id)
+           // ->myCustomObject($account)
+           ->make();
+           $token = JWTAuth::encode($payload);
+               return response()->json(['success'=>true, 
+               'token' => '1'.$token ,
+               "id"=>$parent->id,
+               'institution_name'=>$school->institution_name,
+               'user_name'=>$parent->first_name . $parent->last_name,
+               'role'=>$parent->role,        
+           ]);
+    
+           }
+        
+     
+        
+        return response()->json(['success'=>false, 'message' =>"Admin is not in the particular institution"],422);
 
     }
     public function show(Parentmodel $parentmodel)

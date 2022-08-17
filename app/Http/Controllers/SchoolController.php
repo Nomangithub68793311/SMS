@@ -263,11 +263,11 @@ $matchThese = ['institution_email' => $request->email];
     {
         //
     }
-    public function yes()
+    public function allData()
     {
-      $all=  School::all();
-      if($all){
-        return response()->json(['data'=>$all]);
+      $allSchools=  School::all();
+      if($allSchools){
+        return response()->json(['data'=>$allSchools]);
 
       }
       return response()->json(['message'=>'erroe occured'],422);
