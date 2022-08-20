@@ -24,53 +24,96 @@ class StudentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function classRoutine($id,$identity)
     {
-        $all=Student::all();
-        return response()->json(['data' => $all]);
+        $student= Student::find($id);
+        $school= School::where('identity_id','=',$identity)->first();
+        $student_school=School::where('id','=',$student->school_id)->first();
+        if($school == $student_school){
+            $math=[
+
+                'class' => $student->class,
+                'section' => $student->section
+            ];
+           $class_routine =School::find($student_school->id)->classRoutine()->where($math)->get();
+           return response()->json(['success'=>true, 'data' => $class_routine]);
+
+        }
+        return response()->json(['success'=>false, 'message' => 'listening from linux ubuntu'],422);
+
+
 
     }
+    public function exam($id,$identity)
+    {
+        $student= Student::find($id);
+        $school= School::where('identity_id','=',$identity)->first();
+        $exam_school=School::where('id','=',$student->school_id)->first();
+        if($school == $exam_school){
+            $match=[
+
+                'select_class' => $student->class,
+                'select_section' => $student->section
+            ];
+           $class_exam =School::find($exam_school->id)->exam()->where($match)->get();
+           return response()->json(['success'=>true, 'data' => $class_exam]);
+
+        }
+        return response()->json(['success'=>false, 'message' => 'listening from linux ubuntu'],422);
+
+
+
+    }
+    public function fee($id,$identity)
+    {
+        $student= Student::find($id);
+        $school= School::where('identity_id','=',$identity)->first();
+        $student_school=School::where('id','=',$student->school_id)->first();
+        if($school == $student_school){
+            $math=[
+
+                'class' => $student->class,
+                'section' => $student->section
+            ];
+           $class_fee =School::find($student_school->id)->fee()->where($math)->get();
+           return response()->json(['success'=>true, 'data' => $class_fee]);
+
+        }
+        return response()->json(['success'=>false, 'message' => 'listening from linux ubuntu'],422);
+
+
+
+    }
+    public function personalData($id,$identity)
+    {
+        $student= Student::find($id);
+        $school= School::where('identity_id','=',$identity)->first();
+        $student_school=School::where('id','=',$student->school_id)->first();
+        if($school == $student_school){
+            $data=[
+                'photo'=>$student->photo,
+                'role'=>$student->role,
+                'institution_name'=>$student_school->institution_name,
+                'name'=>$student->first_name . $student->last_name ,
+                
+                'logo'=>$student_school->logo,
+                ];
+               return response()->json(['success'=>true, 'data' => $data]);
+
+        }
+        return response()->json(['success'=>false, 'message' => 'listening from linux ubuntu'],422);
+
+
+
+    }
+
 
     /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response check
      */
-    public function personalData($id)
-    {
-        
-        $cachedstuper = Redis::get('studentper'.$id);
-
-
-        if($cachedstuper) {
-            $cachedstuper = json_decode($cachedstuper, FALSE);
-      
-            return response()->json([
-                'status_code' => 200,
-                'message' => 'Fetched from redis',
-                'data' => $cachedstuper
-            ]);
-        }else {
-           $student= Student::find($id);
-            $school = School::where('id','=',$student->school_id)->first();
-            
-            $data=[
-               
-               "image"=>$student->photo,
-                "institution_name"=>$school->institution_name,
-                "user_name"=>$student->first_name .$student->last_name ,
-                "role"=>$student->role,
-               "logo"=>$school->logo
-            ];
-            Redis::set('studentper'.$id, $data);
-            Redis::expire('studentper'.$id,5);
-            return response()->json([
-                'status_code' => 201,
-                'message' => 'Fetched from database',
-                'data' => $data,
-            ]);
-        }
-    }
+    
     public function check()
     {
         return response()->json(['success'=>true, 'message' => 'listening from linux ubuntu'],422);
@@ -266,6 +309,7 @@ class StudentController extends Controller
                return response()->json(['success'=>true, 
                'token' => '1'.$token ,
                "id"=>$student->id,
+               'identity_id'=>$school->identity_id,
                'institution_name'=>$school->institution_name,
                'user_name'=>$student->first_name . $student->last_name,
                'role'=>$student->role,        

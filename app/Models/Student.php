@@ -37,4 +37,8 @@ class Student extends Model
     {
         return $this->belongsTo(Parentmodel::class);
     }
+    public function studentLeave()
+    {
+        return $this->hasMany(StudentLeave::class);
+    }
 }

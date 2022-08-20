@@ -24,9 +24,46 @@ class TeacherController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function personalData($id,$identity)
     {
-        //
+        $teacher= Teacher::find($id);
+        $school= School::where('identity_id','=',$identity)->first();
+        $teacher_school=School::where('id','=',$teacher->school_id)->first();
+        if($school == $teacher_school){
+            $data=[
+                'role'=>$teacher->role,
+                'institution_name'=>$teacher_school->institution_name,
+                'name'=>$teacher->first_name . $teacher->last_name ,
+                
+                'logo'=>$teacher_school->logo,
+                ];
+               return response()->json(['success'=>true, 'data' => $data]);
+
+        }
+        return response()->json(['success'=>false, 'message' => 'listening from linux ubuntu'],422);
+
+
+
+    }
+    public function classRoutine($id,$identity)
+    {
+        $student= Student::find($id);
+        $school= School::where('identity_id','=',$identity)->first();
+        $student_school=School::where('id','=',$student->school_id)->first();
+        if($school == $student_school){
+            $math=[
+
+                'class' => $student->class,
+                'section' => $student->section
+            ];
+           $class_routine =School::find($student_school->id)->classRoutine()->where($math)->get();
+           return response()->json(['success'=>true, 'data' => $class_routine]);
+
+        }
+        return response()->json(['success'=>false, 'message' => 'listening from linux ubuntu'],422);
+
+
+
     }
     public function all($id)
     {

@@ -26,11 +26,27 @@ class ParentmodelController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function personalData($id,$identity)
     {
-        //
-    }
+        $parent= Parentmodel::find($id);
+        $school= School::where('identity_id','=',$identity)->first();
+        $parent_school=School::where('id','=',$parent->school_id)->first();
+        if($school == $parent_school){
+            $data=[
+                'role'=>$parent->role,
+                'institution_name'=>$parent_school->institution_name,
+                'name'=>$parent->first_name . $parent->last_name ,
+                
+                'logo'=>$parent_school->logo,
+                ];
+               return response()->json(['success'=>true, 'data' => $data]);
 
+        }
+        return response()->json(['success'=>false, 'message' => 'listening from linux ubuntu'],422);
+
+
+
+    }
     public function all($id)
     {
         $cachedparent = Redis::get('parent'.$id);
